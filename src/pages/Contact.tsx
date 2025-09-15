@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,7 +53,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
+   
 
       <div className="bg-gradient-to-b from-gray-100 to-white pt-32 pb-16">
         <div className="container mx-auto px-4">
@@ -241,7 +239,7 @@ const Contact = () => {
         total={0} // ✅ required prop
       />
 
-      <Footer />
+ 
     </div>
   );
 };
