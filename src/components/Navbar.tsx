@@ -31,13 +31,15 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           {/* ✅ Logo */}
           <Link href="/" className="flex items-center">
-            <Image
-              src="/lovable-uploads/logo.png"
-              alt="LocalAutoSpa Logo"
-              width={170}
-              height={90}
-              className="h-12 w-auto"
-            />
+            <div className="h-20 w-auto flex items-center"> 
+              <Image
+                src="/lovable-uploads/logo.png"
+                alt="LocalAutoSpa Logo"
+                width={200}
+                height={100}
+                className="max-h-full w-auto object-contain"
+              />
+            </div>
           </Link>
 
           {/* ✅ Desktop Navigation */}

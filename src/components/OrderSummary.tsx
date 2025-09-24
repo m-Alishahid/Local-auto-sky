@@ -1,97 +1,157 @@
 "use client";
 
+import { FC, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { serviceTypes, additionalServices } from "@/utils/services";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { services, additionalServices } from "@/utils/services";
+
+// Helper function to calculate price
+const calculatePrice = (
+  vehicleType: string,
+  packageType: string,
+  serviceCategory?: string,
+  vehicleSize?: number
+): number => {
+  if (["suv", "truck", "van", "sedan"].includes(vehicleType)) {
+    const [category, pkgKey] = packageType.split("-");
+    return (
+      (services as any)?.[vehicleType]?.[category]?.[pkgKey]?.price || 0
+    );
+  }
+  if (["boat", "rv"].includes(vehicleType)) {
+    return (
+      ((services as any)?.[vehicleType]?.[packageType]?.pricePerFt || 0) *
+      (vehicleSize || 0)
+    );
+  }
+  if (["jetski", "bike"].includes(vehicleType)) {
+    return (services as any)?.[vehicleType]?.[packageType]?.price || 0;
+  }
+  return 0;
+};
 
 interface OrderSummaryProps {
   formData: {
-    selectedServices: { serviceType: string; package: string }[];
-    additionalServices: string[];
+    vehicleType?: string;
+    packageType?: string;
+    serviceCategory?: string;
+    vehicleSize?: number | string;
+    additionalServices?: string[];
   };
   totalPrice: number;
   discountedPrice: number;
   isPromoValid: boolean;
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({
+const OrderSummaryAccordion: FC<OrderSummaryProps> = ({
   formData,
   totalPrice,
   discountedPrice,
   isPromoValid,
 }) => {
-  const getServiceTypeDetails = (id: string) =>
-    serviceTypes.find((s) => s.id === id);
+  const [open, setOpen] = useState(true);
+  const toggleOpen = () => setOpen(!open);
 
   return (
     <Card className="mt-6 border-0 shadow-lg bg-gray-50">
       <CardContent className="p-6">
-        <h2 className="text-xl font-bold mb-4 text-center">Order Summary</h2>
+        <div
+          className="flex justify-between items-center cursor-pointer"
+          onClick={toggleOpen}
+        >
+          <h2 className="text-lg font-semibold">Order Summary</h2>
+          {open ? <ChevronUp /> : <ChevronDown />}
+        </div>
 
-        {/* Selected Services */}
-        <div className="mb-4">
-          <h3 className="font-medium mb-2">Selected Services</h3>
-          {formData.selectedServices.length > 0 ? (
-            <ul className="space-y-2">
-              {formData.selectedServices.map((sel, i) => {
-                const service = getServiceTypeDetails(sel.serviceType);
-                const pkg = service?.packages.find((p) => p.id === sel.package);
-                return (
-                  <li
-                    key={i}
-                    className="grid grid-cols-2 border-b pb-1 text-sm"
-                  >
-                    <span className="text-gray-700">
-                      {service?.name} – {pkg?.name}
+        <AnimatePresence initial={false}>
+          {open && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-4 space-y-4"
+            >
+              {/* Selected Services */}
+              <div>
+                <h3 className="font-medium mb-2">Selected Services</h3>
+                <div className="space-y-2">
+                  {formData.packageType ? (
+                    <div className="flex justify-between p-2 border rounded">
+                      <span>
+                        {formData.serviceCategory && formData.vehicleType
+                          ? (services as any)?.[formData.vehicleType]?.[
+                              formData.serviceCategory
+                            ]?.name || formData.packageType
+                          : formData.packageType}
+                      </span>
+                      <span>
+                        $
+                        {calculatePrice(
+                          formData.vehicleType || "",
+                          formData.packageType,
+                          formData.serviceCategory,
+                          Number(formData.vehicleSize) || 0
+                        )}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      No package selected
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Additional Services */}
+              {formData.additionalServices &&
+                formData.additionalServices.length > 0 && (
+                  <div>
+                    <h3 className="font-medium mb-2">Add-ons</h3>
+                    <div className="space-y-2">
+                      {formData.additionalServices.map((id: string) => {
+                        const add = additionalServices.find((a) => a.id === id);
+                        if (!add) return null;
+                        return (
+                          <div
+                            key={id}
+                            className="flex justify-between p-2 border rounded"
+                          >
+                            <span>{add.name}</span>
+                            <span>${add.price}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+              {/* Totals */}
+              <div className="border-t pt-3 space-y-1">
+                <div className="flex justify-between">
+                  <span className="font-medium">Subtotal:</span>
+                  <span>${totalPrice.toFixed(2)}</span>
+                </div>
+                {isPromoValid && (
+                  <div className="flex justify-between text-green-600 font-medium">
+                    <span>Promo Applied (15% Discount)</span>
+                    <span>
+                      -${(totalPrice - discountedPrice).toFixed(2)}
                     </span>
-                    <span className="text-right font-bold">{pkg?.price}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No services selected</p>
+                  </div>
+                )}
+                <div className="flex justify-between font-bold text-lg pt-2 border-t mt-2">
+                  <span>Total:</span>
+                  <span>${discountedPrice.toFixed(2)}</span>
+                </div>
+              </div>
+            </motion.div>
           )}
-        </div>
-
-        {/* Add-on Services */}
-        {formData.additionalServices.length > 0 && (
-          <div className="mb-4">
-            <h3 className="font-medium mb-2">Additional Services</h3>
-            <ul className="space-y-2">
-              {formData.additionalServices.map((addId, i) => {
-                const addService = additionalServices.find((a) => a.id === addId);
-                return (
-                  <li
-                    key={i}
-                    className="grid grid-cols-2 border-b pb-1 text-sm"
-                  >
-                    <span className="text-gray-700">{addService?.name}</span>
-                    <span className="text-right font-bold">{addService?.price}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        )}
-
-        {/* Pricing */}
-        <div className="pt-4 border-t">
-          {isPromoValid && (
-            <div className="grid grid-cols-2 text-green-600 text-sm mb-2">
-              <span>Discount Applied (20% Off)</span>
-              <span className="text-right">
-                - ${(totalPrice - discountedPrice).toFixed(2)}
-              </span>
-            </div>
-          )}
-          <div className="grid grid-cols-2 text-lg font-bold">
-            <span>Total</span>
-            <span className="text-right">${discountedPrice.toFixed(2)}</span>
-          </div>
-        </div>
+        </AnimatePresence>
       </CardContent>
     </Card>
   );
 };
 
-export default OrderSummary;
+export default OrderSummaryAccordion;

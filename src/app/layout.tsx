@@ -9,7 +9,17 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Local Auto Spa - Premium Mobile Car Detailing',
   description: 'Professional mobile car detailing services. We bring the detailing to you with premium quality and convenience.',
+
+  icons: {
+    icon: '/favicon.png', // 👈 yahan PNG set karo
+  },
+
+
+
 }
+
+
+
 
 // 👇 Yeh alag export hona chahiye
 export const viewport: Viewport = {

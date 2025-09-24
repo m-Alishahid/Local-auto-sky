@@ -20,12 +20,11 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import {
-  serviceTypes,
+  services,
   additionalServices,
-  vehicleTypes,
   timeSlots,
+  cityStateMap, vehicleTypes, calculatePrice,
 } from "@/utils/services";
-import { usStates } from "@/utils/usStates";
 import {
   Popover,
   PopoverContent,
@@ -41,160 +40,51 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import OrderSummaryAccordion from "@/components/OrderSummary";
 
-/* ---------------------- ORDER SUMMARY COMPONENT ---------------------- */
-const OrderSummary = ({
-  formData,
-  totalPrice,
-  discountedPrice,
-  isPromoValid,
-}: any) => {
-  const getServiceTypeDetails = (id: string) =>
-    serviceTypes.find((s) => s.id === id);
 
-  return (
-    <Card className="mt-6 border-0 shadow-lg bg-gray-50">
-      <CardContent className="p-6">
-        <h2 className="text-xl font-bold mb-4 text-center">Order Summary</h2>
 
-        {/* Selected Services */}
-        <div className="mb-4">
-          <h3 className="font-medium mb-2">Selected Services</h3>
-          {formData.selectedServices.length > 0 ? (
-            <ul className="space-y-2">
-              {formData.selectedServices.map((sel: any, i: number) => {
-                const service = getServiceTypeDetails(sel.serviceType);
-                const pkg = service?.packages.find((p) => p.id === sel.package);
-                return (
-                  <li
-                    key={i}
-                    className="grid grid-cols-2 border-b pb-1 text-sm"
-                  >
-                    <span className="text-gray-700">
-                      {service?.name} – {pkg?.name}
-                    </span>
-                    <span className="text-right font-bold">{pkg?.price}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No services selected</p>
-          )}
-        </div>
 
-        {/* Add-on Services */}
-        {formData.additionalServices.length > 0 && (
-          <div className="mb-4">
-            <h3 className="font-medium mb-2">Additional Services</h3>
-            <ul className="space-y-2">
-              {formData.additionalServices.map((addId: string, i: number) => {
-                const addService = additionalServices.find(
-                  (a) => a.id === addId
-                );
-                return (
-                  <li
-                    key={i}
-                    className="grid grid-cols-2 border-b pb-1 text-sm"
-                  >
-                    <span className="text-gray-700">{addService?.name}</span>
-                    <span className="text-right font-bold">
-                      {addService?.price}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        )}
-
-        {/* Pricing */}
-        <div className="pt-4 border-t">
-          {isPromoValid && (
-            <div className="grid grid-cols-2 text-green-600 text-sm mb-2">
-              <span>Discount Applied (20% Off)</span>
-              <span className="text-right">
-                - ${(totalPrice - discountedPrice).toFixed(2)}
-              </span>
-            </div>
-          )}
-          <div className="grid grid-cols-2 text-lg font-bold">
-            <span>Total</span>
-            <span className="text-right">${discountedPrice.toFixed(2)}</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-/* ---------------------- CONFIRMATION MODAL ---------------------- */
+// ---------------- CONFIRMATION MODAL ----------------
 const ConfirmationModal = ({ open, onClose, formData, total }: any) => {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center">
-          <DialogTitle className="text-2xl font-bold">
-            Booking Confirmed 🎉
-          </DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Booking Confirmed 🎉</DialogTitle>
           <DialogDescription>
-            Thank you <span className="font-medium">{formData.firstName}</span>!{" "}
-            <br />
-            Your booking has been successfully scheduled.
+            Thank you <span className="font-medium">{formData.firstName}</span>!
+            <br />Your booking has been successfully scheduled.
           </DialogDescription>
         </DialogHeader>
 
         <div className="mt-6 border rounded-lg bg-gray-50 p-4">
-          <h3 className="text-lg font-semibold mb-3 text-gray-800 text-center">
-            Appointment Details
-          </h3>
+          <h3 className="text-lg font-semibold mb-3 text-center">Appointment Details</h3>
           <div className="grid grid-cols-2 gap-y-3 text-sm">
-            <span className="font-medium text-gray-600">Service(s):</span>
-            <span className="text-gray-900 text-right">
-              {formData.selectedServices.length > 0
-                ? formData.selectedServices.map((s: any) => s.package).join(", ")
-                : "N/A"}
+            <span className="font-medium">Vehicle:</span>
+            <span className="text-right">
+              {formData.vehicleMake} {formData.vehicleModel} {formData.vehicleYear}
             </span>
-
-            <span className="font-medium text-gray-600">Date:</span>
-            <span className="text-gray-900 text-right">
-              {formData.date
-                ? new Date(formData.date).toLocaleDateString()
-                : "N/A"}
+            <span className="font-medium">Date:</span>
+            <span className="text-right">
+              {formData.date ? new Date(formData.date).toLocaleDateString() : "N/A"}
             </span>
-
-            <span className="font-medium text-gray-600">Time Slot:</span>
-            <span className="text-gray-900 text-right">
-              {formData.timeSlot || "N/A"}
-            </span>
-
-            <span className="font-medium text-gray-600">Vehicle:</span>
-            <span className="text-gray-900 text-right">
-              {formData.vehicleMake} {formData.vehicleModel}{" "}
-              {formData.vehicleYear}
-            </span>
-
-            <span className="font-medium text-gray-600">Total:</span>
-            <span className="font-bold text-green-600 text-right">
-              ${total.toFixed(2)}
-            </span>
+            <span className="font-medium">Time Slot:</span>
+            <span className="text-right">{formData.timeSlot || "N/A"}</span>
+            <span className="font-medium">Total:</span>
+            <span className="font-bold text-green-600 text-right">${total.toFixed(2)}</span>
           </div>
         </div>
 
         <div className="mt-6">
-          <Button
-            onClick={onClose}
-            className="bg-black text-white hover:bg-gray-700 w-full"
-          >
-            Close
-          </Button>
+          <Button onClick={onClose} className="w-full bg-black text-white">Close</Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-/* ---------------------- MAIN BOOKING COMPONENT ---------------------- */
+// ---------------- MAIN BOOKING COMPONENT ----------------
 const Booking = () => {
   const { toast } = useToast();
   const router = useRouter();
@@ -202,21 +92,22 @@ const Booking = () => {
   const [step, setStep] = useState(1);
   const [date, setDate] = useState<Date | undefined>();
   const [selectedServiceType, setSelectedServiceType] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [isPromoValid, setIsPromoValid] = useState(false);
   const [openCalendar, setOpenCalendar] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     selectedServices: [] as { serviceType: string; package: string }[],
     additionalServices: [] as string[],
     vehicleType: "",
-    vehicleLength: "",
     vehicleMake: "",
     vehicleModel: "",
     vehicleYear: "",
     vehicleColor: "",
+    vehicleWidth: "",
+    vehicleLength: "",
     firstName: "",
     lastName: "",
     email: "",
@@ -228,55 +119,27 @@ const Booking = () => {
     date: "",
     timeSlot: "",
     notes: "",
+    packageType: "",
+    serviceCategory: "",
+    vehicleSize: "",
   });
 
-  //Pricing
-  const parsePrice = (price: string | number) => {
-    if (typeof price === "number") return price;
-    const match = price.match(/\d+/g);
-    return match ? Number(match[0]) : 0;
+  const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const city = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      city,
+      state: cityStateMap[city] || ""
+    }));
   };
 
-  const calculatetotalPrice = () => {
-    let total = 0;
-    formData.selectedServices.forEach((sel) => {
-      const service = serviceTypes.find((s) => s.id === sel.serviceType);
-      const pkg = service?.packages.find((p) => p.id === sel.package);
-      if (pkg) total += parsePrice(pkg.price);
-    });
-    formData.additionalServices.forEach((addId) => {
-      const addService = additionalServices.find((a) => a.id === addId);
-      if (addService) total += parsePrice(addService.price);
-    });
-    return total;
-  };
-
-  const totalPrice = calculatetotalPrice();
-
-  const discountedPrice =
-    Number(isPromoValid ? totalPrice * 0.8 : totalPrice) || 0;
-
-  //Helpers
+  // Helpers
   const updateForm = (updates: Partial<typeof formData>) =>
     setFormData((prev) => ({ ...prev, ...updates }));
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => updateForm({ [e.target.name]: e.target.value } as any);
-
-  const handleServicePackageSelect = (
-    serviceType: string,
-    packageId: string
-  ) => {
-    setFormData((prev) => {
-      const updated = prev.selectedServices.filter(
-        (s) => s.serviceType !== serviceType
-      );
-      return {
-        ...prev,
-        selectedServices: [...updated, { serviceType, package: packageId }],
-      };
-    });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    updateForm({ [name]: value } as any);
   };
 
   const handleCheckboxChange = (id: string) => {
@@ -293,54 +156,76 @@ const Booking = () => {
     updateForm({ date: date ? date.toISOString() : "" });
   };
 
-  const nextStep = () => step < 3 && setStep(step + 1);
-  const prevStep = () => step > 1 && setStep(step - 1);
-
-  const handleApplyPromo = () => {
-    if (promoCode.trim().toUpperCase() === "DISCOUNT20") {
-      setIsPromoValid(true);
-      toast({
-        title: "Promo Applied ✅",
-        description: "You received 20% off!",
-      });
-    } else {
-      setIsPromoValid(false);
-      toast({
-        title: "Invalid Promo ❌",
-        description: "Please enter a valid promo code.",
-        variant: "destructive",
-      });
+  // Pricing
+  const parsePrice = (price: string | number, length?: number) => {
+    if (typeof price === "number") return price;
+    if (price.includes("/ft") && length) {
+      const match = price.match(/\d+/);
+      return match ? Number(match[0]) * length : 0;
     }
+    const match = price.match(/\d+/);
+    return match ? Number(match[0]) : 0;
   };
 
+  // ------------------- Booking.tsx -------------------
+  const calculateTotalPrice = () => {
+    let total = 0;
+
+    // Selected package
+    if (formData.packageType) {
+      total += calculatePrice(
+        formData.vehicleType,
+        formData.packageType,
+        formData.serviceCategory,
+        Number(formData.vehicleSize)
+      );
+    }
+
+    // Additional services
+    formData.additionalServices.forEach((id: string) => {
+      const add = additionalServices.find((a) => a.id === id);
+      if (add) total += add.price;
+    });
+
+    return total;
+  };
+
+
+  const totalPrice = calculateTotalPrice();
+  const discountedPrice = isPromoValid ? totalPrice * 0.85 : totalPrice;
+
+
+  // Steps validation
+  const validateStep = () => {
+    if (step === 1 && !formData.vehicleType) {
+      toast({ title: "Missing Vehicle Info ❌", description: "Please select a vehicle type." });
+      return false;
+    }
+    if (step === 2 && !formData.packageType) {
+      toast({ title: "Missing Service ❌", description: "Please select a package." });
+      return false;
+    }
+    if (step === 3 && (!formData.firstName || !formData.email)) {
+      toast({ title: "Missing Info ❌", description: "Please enter required customer details." });
+      return false;
+    }
+    return true;
+  };
+
+  const nextStep = () => validateStep() && setStep(step + 1);
+  const prevStep = () => step > 1 && setStep(step - 1);
+
+  // Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    if (
-      formData.selectedServices.length === 0 ||
-      !formData.vehicleType ||
-      !formData.vehicleMake ||
-      !formData.vehicleModel ||
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.email ||
-      !formData.phone ||
-      !formData.address ||
-      !formData.city ||
-      !formData.state ||
-      !formData.zip ||
-      !formData.date ||
-      !formData.timeSlot
-    ) {
-      toast({
-        title: "Missing Fields ❌",
-        description: "Please fill all required fields before submitting.",
-        variant: "destructive",
-      });
+    if (!formData.email) {
+      toast({ title: "Email Missing ❌", description: "Please provide a valid email." });
+      setIsSubmitting(false);
       return;
     }
 
-    setIsSubmitting(true);
     try {
       const response = await fetch("/api/book", {
         method: "POST",
@@ -351,185 +236,101 @@ const Booking = () => {
       if (!response.ok) throw new Error("Booking failed");
 
       setShowConfirmation(true);
-
-      toast({
-        title: "Booking Successful ✅",
-        description: "Your booking has been confirmed.",
-      });
+      toast({ title: "Booking Successful ✅", description: "Your booking is confirmed." });
     } catch {
       toast({
         title: "Submission Error ❌",
-        description:
-          "There was a problem submitting your booking. Please try again.",
+        description: "There was a problem submitting your booking.",
         variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-  //Animations & Render
 
-  const fade = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.5 } },
-  };
-
-  const getServiceTypeDetails = (id: string) =>
-    serviceTypes.find((s) => s.id === id);
-
-  const fadeIn = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  };
+  // Animations
+  const fadeIn = { hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
 
   return (
     <div className="min-h-screen bg-lightwhite-900 text-gray-800">
       <Navbar />
-
       <div className="pt-32 pb-16 flex justify-center">
         <div className="w-full max-w-4xl px-4">
-          <div className="text-center mb-12 text-black">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Book Your Service
-            </h1>
-            <div className="w-24 h-1 bg-black/100 mx-auto mb-6"></div>
-            <p className="text-lg text-black/50 max-w-2xl mx-auto">
-              Schedule your mobile detailing appointment in just a few simple
-              steps
-            </p>
+          {/* Progress Bar */}
+          <div className="mb-12">
+            <div className="flex items-center justify-between w-full">
+              {["Vehicle Info", "Package", "Customer Info"].map((label, i) => (
+                <div key={i} className="flex items-center flex-1">
+                  {/* Step Box */}
+                  <div
+                    className={`flex-1 text-center px-6 py-2 rounded-md text-sm font-medium shadow-md
+            ${step === i + 1
+                        ? "bg-black text-white"
+                        : step > i + 1
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-500"
+                      }`}
+                  >
+                    {label}
+                  </div>
+
+                  {/* Connector Line (between steps only) */}
+                  {i < 2 && (
+                    <div
+                      className={`h-0.5 flex-1 
+              ${step > i + 1 ? "bg-green-500" : "bg-gray-300"}`}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
-          <Card className="border-0 shadow-xl rounded-xl bg-white text-black">
+
+
+          <Card className="border-0 shadow-xl bg-white">
             <CardContent className="p-8">
               <form onSubmit={handleSubmit}>
-                {/* STEP 1 - Services */}
+
+                {/* STEP 1 - Vehicle Info */}
                 {step === 1 && (
-                  <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={fadeIn}
-                    className="space-y-6"
-                  >
-                    {/* Service Type */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Service Type
-                      </label>
-                      <Select
-                        value={selectedServiceType}
-                        onValueChange={(val) => {
-                          setSelectedServiceType(val);
-                          updateForm({
-                            selectedServices: [],
-                            additionalServices: [],
-                          });
-                        }}
-                      >
-                        <SelectTrigger className="bg-white text-black">
-                          <SelectValue placeholder="Select a service" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white text-black">
-                          {serviceTypes.map((s) => (
-                            <SelectItem key={s.id} value={s.id}>
-                              {s.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <motion.div initial="hidden" animate="visible" variants={fadeIn} className="space-y-6">
+                    <h2 className="text-xl font-semibold">Vehicle Information</h2>
+                    <Select value={formData.vehicleType} onValueChange={(v) => updateForm({ vehicleType: v })}>
+                      <SelectTrigger><SelectValue placeholder="Select vehicle type" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sedan">Sedan</SelectItem>
+                        <SelectItem value="suv">SUV</SelectItem>
+                        <SelectItem value="truck">Truck</SelectItem>
+                        <SelectItem value="van">Van</SelectItem>
+                        <SelectItem value="boat">Boat</SelectItem>
+                        <SelectItem value="rv">RV</SelectItem>
+                        <SelectItem value="jetski">Jet Ski</SelectItem>
+                        <SelectItem value="bike">Bike</SelectItem>
+                      </SelectContent>
+                    </Select>
 
-                    {/* Packages */}
-                    {selectedServiceType && (
+                    {["car", "truck", "suv", "sedan", "van", "bike", "jetski"].includes(formData.vehicleType) && (
                       <div className="grid md:grid-cols-2 gap-4">
-                        {getServiceTypeDetails(
-                          selectedServiceType
-                        )?.packages.map((pkg) => {
-                          const isSelected = formData.selectedServices.some(
-                            (s) =>
-                              s.serviceType === selectedServiceType &&
-                              s.package === pkg.id
-                          );
-                          return (
-                            <div
-                              key={pkg.id}
-                              onClick={() =>
-                                handleServicePackageSelect(
-                                  selectedServiceType,
-                                  pkg.id
-                                )
-                              }
-                              className={`border rounded-lg p-4 cursor-pointer ${
-                                isSelected
-                                  ? "border-black bg-white shadow-md"
-                                  : "border-gray-300 hover:border-black"
-                              }`}
-                            >
-                              <div className="flex justify-between mb-2">
-                                <span className="font-medium">{pkg.name}</span>
-                                <span className="font-bold">{pkg.price}</span>
-                              </div>
-                              <p className="text-sm">{pkg.description}</p>
-                              {isSelected && (
-                                <div className="mt-2 text-gray-600 flex items-center text-sm">
-                                  <Check size={16} className="mr-1" /> Selected
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                        <Input name="vehicleMake" placeholder="Make *" value={formData.vehicleMake} onChange={handleInputChange} />
+                        <Input name="vehicleModel" placeholder="Model *" value={formData.vehicleModel} onChange={handleInputChange} />
+                        <Input name="vehicleYear" type="string" placeholder="Year *" value={formData.vehicleYear} onChange={handleInputChange} />
+                        <Input name="vehicleColor" placeholder="Color *" value={formData.vehicleColor} onChange={handleInputChange} />
                       </div>
                     )}
 
-                    {/* Add-on Services */}
-                    {formData.selectedServices.length > 0 && (
-                      <div>
-                        <h3 className="text-lg font-medium mb-4">
-                          Add-on Services
-                        </h3>
-                        <div className="grid md:grid-cols-2 gap-4">
-                          {additionalServices.map((svc) => (
-                            <div
-                              key={svc.id}
-                              className="flex items-start space-x-2"
-                            >
-                              <Checkbox
-                                id={svc.id}
-                                checked={formData.additionalServices.includes(
-                                  svc.id
-                                )}
-                                onCheckedChange={() =>
-                                  handleCheckboxChange(svc.id)
-                                }
-                              />
-                              <div>
-                                <Label
-                                  htmlFor={svc.id}
-                                  className="text-sm font-medium"
-                                >
-                                  {svc.name}
-                                </Label>
-                                <p className="text-sm">{svc.price}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                    {["boat", "rv"].includes(formData.vehicleType) && (
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <Input name="vehicleModel" placeholder="Model Name *" value={formData.vehicleModel} onChange={handleInputChange} />
+                        <Input name="vehicleColor" type="string" placeholder="Color *" value={formData.vehicleColor} onChange={handleInputChange} />
                       </div>
                     )}
 
-                    {/* Next Step Button */}
-                    <div className="flex justify-end">
-                      <Button
-                        type="button"
-                        onClick={nextStep}
-                        className="bg-black text-white hover:bg-gray-600"
-                      >
-                        Next Step
-                      </Button>
-                    </div>
+                    <div className="flex justify-end"><Button onClick={nextStep} className="bg-black text-white hover:bg-gray-600"    >Next</Button></div>
                   </motion.div>
                 )}
 
-                {/* STEP 2 - Vehicle Info */}
+                {/* STEP 2 - Package & Services */}
                 {step === 2 && (
                   <motion.div
                     initial="hidden"
@@ -537,70 +338,159 @@ const Booking = () => {
                     variants={fadeIn}
                     className="space-y-6"
                   >
-                    <h2 className="text-xl font-bold mb-6">
-                      Vehicle Information
-                    </h2>
+                    <h2 className="text-xl font-semibold">Select Package</h2>
 
-                    <Select
-                      value={formData.vehicleType}
-                      onValueChange={(val) => updateForm({ vehicleType: val })}
-                    >
-                      <SelectTrigger className="bg-white text-black">
-                        <SelectValue placeholder="Select Vehicle Type *" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white text-black">
-                        {vehicleTypes.map((v) => (
-                          <SelectItem key={v.id} value={v.id}>
-                            {v.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    {/* Show vehicle type selected in Step 1 */}
+                    <p className="text-gray-700 mb-2">
+                      Vehicle Type: <span className="font-medium">{vehicleTypes.find(v => v.id === formData.vehicleType)?.name}</span>
+                    </p>
 
-                    <div className="grid md:grid-cols-2 gap-4">
+                    {/* Boat/RV size input */}
+                    {(formData.vehicleType === "boat" || formData.vehicleType === "rv") && (
                       <Input
-                        required
-                        name="vehicleMake"
-                        value={formData.vehicleMake}
-                        onChange={handleInputChange}
-                        placeholder="Make *"
+                        type="number"
+                        placeholder="Enter size in feet"
+                        value={formData.vehicleSize || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, vehicleSize: e.target.value }))
+                        }
+                        className="bg-white text-black"
                       />
-                      <Input
-                        required
-                        name="vehicleModel"
-                        value={formData.vehicleModel}
-                        onChange={handleInputChange}
-                        placeholder="Model *"
-                      />
-                    </div>
+                    )}
 
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <Input
-                        name="vehicleYear"
-                        value={formData.vehicleYear}
-                        onChange={handleInputChange}
-                        placeholder="Year"
-                      />
-                      <Input
-                        name="vehicleColor"
-                        value={formData.vehicleColor}
-                        onChange={handleInputChange}
-                        placeholder="Color"
-                      />
-                    </div>
+                    {/* Service Packages */}
+                    {formData.vehicleType && (
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {Object.entries(services[formData.vehicleType] || {}).map(
+                          ([serviceCategory, packagesOrService]) => {
 
-                    <div className="flex justify-between">
+                            // Car/SUV/Truck/Van/Bike packages (nested)
+                            if (["sedan", "suv", "truck", "van", "bike"].includes(formData.vehicleType)) {
+                              return Object.entries(packagesOrService as any).map(
+                                ([packageKey, pkg]) => {
+                                  const packageId = `${serviceCategory}-${packageKey}`;
+                                  const isSelected = formData.packageType === packageId;
+                                  const price = calculatePrice(
+                                    formData.vehicleType,
+                                    packageId,
+                                    serviceCategory,
+                                    Number(formData.vehicleSize)
+                                  );
+
+                                  // Assert pkg as a proper type
+                                  const typedPkg = pkg as { name: string; includes?: string[] };
+
+                                  return (
+                                    <div
+                                      key={packageId}
+                                      className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""
+                                        }`}
+                                      onClick={() =>
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          serviceCategory,
+                                          packageType: packageId,
+                                        }))
+                                      }
+                                    >
+                                      <div className="flex justify-between font-medium">
+                                        <span>{typedPkg.name}</span>
+                                        <span>${price}</span>
+                                      </div>
+                                      <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
+                                        {typedPkg.includes?.map((i: string, idx: number) => (
+                                          <li key={idx}>{i}</li>
+                                        ))}
+                                      </ul>
+                                      {isSelected && (
+                                        <p className="text-sm text-green-600 flex items-center mt-2">
+                                          <Check size={14} className="mr-1" /> Selected
+                                        </p>
+                                      )}
+                                    </div>
+                                  );
+                                }
+                              );
+                            }
+
+                            // Other vehicles (boat, rv, jetski)
+                            const pkg = packagesOrService as any;
+                            const isSelected = formData.packageType === serviceCategory;
+                            const price = calculatePrice(
+                              formData.vehicleType,
+                              serviceCategory,
+                              serviceCategory,
+                              Number(formData.vehicleSize)
+                            );
+
+                            return (
+                              <div
+                                key={serviceCategory}
+                                className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""
+                                  }`}
+                                onClick={() =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    serviceCategory,
+                                    packageType: serviceCategory,
+                                  }))
+                                }
+                              >
+                                <div className="flex justify-between font-medium">
+                                  <span>{pkg.name}</span>
+                                  <span>${price}</span>
+                                </div>
+                                {pkg.includes && pkg.includes.length > 0 && (
+                                  <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
+                                    {pkg.includes.map((i: string, idx: number) => (
+                                      <li key={idx}>{i}</li>
+                                    ))}
+                                  </ul>
+                                )}
+                                {isSelected && (
+                                  <p className="text-sm text-green-600 flex items-center mt-2">
+                                    <Check size={14} className="mr-1" /> Selected
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    )}
+
+                    {/* Add-ons */}
+                    {formData.packageType && (
+                      <div>
+                        <h3 className="font-medium mt-4">Add-ons</h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {additionalServices.map((svc) => (
+                            <div key={svc.id} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={svc.id}
+                                checked={formData.additionalServices.includes(svc.id)}
+                                onCheckedChange={() => handleCheckboxChange(svc.id)}
+                              />
+                              <Label htmlFor={svc.id}>
+                                {svc.name} – ${svc.price}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Navigation */}
+                    <div className="flex justify-between mt-6">
+                      <Button onClick={prevStep}
+                        className="bg-black text-white hover:bg-gray-600"
+                      >Back</Button>
                       <Button
-                        type="button"
-                        onClick={prevStep}
-                        className="bg-black hover:bg-gray-600 text-white"
-                      >
-                        Back
-                      </Button>
-                      <Button
-                        type="button"
                         onClick={nextStep}
-                        className="bg-black hover:bg-gray-600 text-white"
+                        disabled={!formData.packageType}
+                        className="bg-black text-white hover:bg-gray-600"
+
+
                       >
                         Next
                       </Button>
@@ -608,112 +498,83 @@ const Booking = () => {
                   </motion.div>
                 )}
 
-                {/* STEP 3 - Contact & Appointment */}
+
+
+                {/* STEP 3 - Customer Info */}
                 {step === 3 && (
-                  <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={fadeIn}
-                    className="space-y-6"
-                  >
-                    <h2 className="text-xl font-bold mb-6">
-                      Contact & Appointment
-                    </h2>
+                  <motion.div initial="hidden" animate="visible" variants={fadeIn} className="space-y-6">
+                    <h2 className="text-xl font-semibold">Customer Info</h2>
 
+                    {/* Name */}
                     <div className="grid md:grid-cols-2 gap-4">
-                      <Input
-                        required
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        placeholder="First Name *"
-                        className="bg-white text-black"
-                      />
-                      <Input
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        placeholder="Last Name *"
-                        className="bg-white text-black"
-                      />
+                      <Input name="firstName" placeholder="First Name *" value={formData.firstName} onChange={handleInputChange} required />
+                      <Input name="lastName" placeholder="Last Name *" value={formData.lastName} onChange={handleInputChange} required />
                     </div>
 
+                    {/* Email + Phone */}
                     <div className="grid md:grid-cols-2 gap-4">
-                      <Input
-                        required
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="Email *"
-                        className="bg-white text-black"
-                      />
-                      <Input
-                        required
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="Phone *"
-                        className="bg-white text-black"
-                      />
+                      <Input name="email" type="email" placeholder="Email *" value={formData.email} onChange={handleInputChange} required />
+                      <Input name="phone" placeholder="Phone *" value={formData.phone} onChange={handleInputChange} required />
                     </div>
 
-                    <Input
-                      required
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      placeholder="Address *"
-                      className="bg-white text-black"
-                    />
+                    {/* Address */}
+                    <Input name="address" placeholder="Address *" value={formData.address} onChange={handleInputChange} required />
 
+                    {/* City + State + Zip */}
                     <div className="grid md:grid-cols-3 gap-4">
+                      {/* City */}
                       <Input
                         required
                         name="city"
                         value={formData.city}
-                        onChange={handleInputChange}
+                        onChange={(e) => {
+                          const city = e.target.value;
+                          setFormData((prev) => ({
+                            ...prev,
+                            city,
+                            state: cityStateMap[city] || "" // auto-fill if exists
+                          }));
+                        }}
                         placeholder="City *"
                         className="bg-white text-black"
                       />
-                      <Select
+
+                      {/* State */}
+                      <Input
+                        required
+                        name="state"
                         value={formData.state}
-                        onValueChange={(val) => updateForm({ state: val })}
-                      >
-                        <SelectTrigger className="bg-white text-black">
-                          <SelectValue placeholder="State *" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white text-black">
-                          {usStates.map((st) => (
-                            <SelectItem key={st.value} value={st.value}>
-                              {st.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, state: e.target.value }))
+                        }
+                        placeholder="State *"
+                        className="bg-white text-black"
+                        readOnly={!!formData.city && !!cityStateMap[formData.city]} // lock if city matches
+                      />
+
+                      {/* Zip */}
                       <Input
                         required
                         name="zip"
                         value={formData.zip}
-                        onChange={handleInputChange}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, zip: e.target.value }))
+                        }
                         placeholder="Zip *"
                         className="bg-white text-black"
                       />
                     </div>
 
-                    {/* Date & Time Picker (fixed: wrappers used) */}
+                    {/* Date & Time */}
                     <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
+                      {/* Calendar */}
                       <div className="flex-1">
                         <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
                           <PopoverTrigger asChild>
                             <Button
                               type="button"
                               variant="outline"
-                              className={cn(
-                                "w-full justify-start bg-white text-black",
-                                !date && "text-gray-500"
-                              )}
+                              className={cn("w-full justify-start bg-white text-black", !date && "text-muted-foreground")}
                               onClick={() => setOpenCalendar(true)}
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
@@ -734,30 +595,30 @@ const Booking = () => {
                         </Popover>
                       </div>
 
-                      <div className="flex-1">
-                        <Select
-                          value={formData.timeSlot}
-                          onValueChange={(val) => updateForm({ timeSlot: val })}
-                        >
-                          <SelectTrigger className="w-full bg-white text-black">
-                            <SelectValue placeholder="Select time slot *" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white text-black">
-                            {timeSlots.map((t) => (
-                              <SelectItem key={t} value={t}>
-                                {t}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      {/* Time Slots */}
+                      <Select
+                        value={formData.timeSlot}
+                        onValueChange={(val) => setFormData((prev) => ({ ...prev, timeSlot: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white text-black">
+                          <SelectValue placeholder="Select time slot *" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {timeSlots.map((slot) => (
+                            <SelectItem key={slot} value={slot}>
+                              {slot}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
+                    {/* Notes */}
                     <Textarea
                       name="notes"
+                      placeholder="Any special instructions?"
                       value={formData.notes}
                       onChange={handleInputChange}
-                      placeholder="Any special instructions?"
                       className="bg-white text-black"
                     />
 
@@ -770,62 +631,67 @@ const Booking = () => {
                         onChange={(e) => setPromoCode(e.target.value)}
                         className="bg-white text-black"
                       />
-                      <Button
-                        type="button"
-                        onClick={handleApplyPromo}
-                        className="bg-black text-white hover:bg-gray-600"
-                      >
-                        Apply
-                      </Button>
+                      {promoCode.trim() !== "" && (
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            if (promoCode.toLowerCase() === "discount15") {
+                              setIsPromoValid(true);
+                              toast({ title: "Promo Applied ✅", description: "15% discount applied." });
+                            } else {
+                              setIsPromoValid(false);
+                              toast({ title: "Invalid Promo ❌", description: "Please try another code.", variant: "destructive" });
+                            }
+                          }}
+                          className="bg-black text-white hover:bg-gray-600"
+                        >
+                          Apply
+                        </Button>
+                      )}
                     </div>
-                    {isPromoValid && (
-                      <p className="text-green-600 text-sm mt-1">
-                        Promo applied: 20% off!
-                      </p>
-                    )}
-                    <OrderSummary
+
+
+                    {/* Order Summary */}
+                    <OrderSummaryAccordion
                       formData={formData}
                       totalPrice={totalPrice}
                       discountedPrice={discountedPrice}
                       isPromoValid={isPromoValid}
                     />
 
-                    {/* Buttons */}
+
+
+                    {/* Navigation */}
                     <div className="flex justify-between">
-                      <Button
-                        type="button"
-                        onClick={prevStep}
-                        className="bg-black hover:bg-gray-600 text-white"
-                      >
+                      <Button type="button" onClick={prevStep} className="bg-black text-white hover:bg-gray-600">
                         Back
                       </Button>
-                      <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="bg-black hover:bg-gray-600 text-white"
-                      >
+                      <Button type="submit" disabled={isSubmitting} className="bg-black text-white hover:bg-gray-600">
                         {isSubmitting ? "Submitting..." : "Confirm Booking"}
                       </Button>
                     </div>
                   </motion.div>
                 )}
+
               </form>
             </CardContent>
           </Card>
-          {/* Confirmation Modal */}
-          <ConfirmationModal
-            open={showConfirmation}
-            onClose={() => {
-              setShowConfirmation(false);
-              router.push("/"); // go to the homepage (Index.tsx)
-            }}
-            formData={formData}
-            total={discountedPrice}
-          />
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        open={showConfirmation}
+        onClose={() => {
+          setShowConfirmation(false);
+          router.push("/"); // redirect after close
+        }}
+        formData={formData}
+        total={discountedPrice}
+      />
     </div>
   );
 };
 
 export default Booking;
+

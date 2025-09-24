@@ -1,104 +1,104 @@
-import { motion } from "framer-motion";
-import TestimonialCard from "@/components/TestimonialCard";
+// "use client";
 
-const TestimonialsSection = () => {
-  const testimonials = [
-    {
-      name: "Michael S.",
-      rating: 5,
-      testimonial: "The detailers were extremely professional and did an amazing job on my SUV. It looks better than when I first bought it!",
-      date: "April 10, 2025"
-    },
-    {
-      name: "Jessica R.",
-      rating: 5,
-      testimonial: "So convenient that they came to my house. The ceramic coating they applied makes water bead up beautifully and the car stays clean longer.",
-      date: "March 22, 2025"
-    },
-    {
-      name: "David T.",
-      rating: 5,
-      testimonial: "I got window tinting done and couldn't be happier with the results. Professional service and excellent quality.",
-      date: "February 15, 2025"
-    },
-    {
-      name: "Amanda K.",
-      rating: 4,
-      testimonial: "Great service and attention to detail. My car looks amazing after the full detail. Would definitely recommend!",
-      date: "January 30, 2025"
-    }
-  ];
+// import { motion } from "framer-motion";
+// import Image from "next/image";
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  };
+// const TestimonialsSection = () => {
+//   const testimonials = [
+//     {
+//       name: "Sarah Khan",
+//       role: "Car Owner",
+//       feedback:
+//         "Local Auto Spa transformed my car! The attention to detail was incredible, and the convenience of mobile service is unmatched.",
+//       image: "/images/customer1.jpg",
+//     },
+//     {
+//       name: "Ahmed Ali",
+//       role: "Business Executive",
+//       feedback:
+//         "Professional, punctual, and the quality exceeded my expectations. My car looks brand new every time!",
+//       image: "/images/customer2.jpg",
+//     },
+//     {
+//       name: "Fatima Noor",
+//       role: "Frequent Traveler",
+//       feedback:
+//         "Amazing experience! They truly care about customer satisfaction. I highly recommend their services.",
+//       image: "/images/customer3.jpg",
+//     },
+//   ];
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeInOut" as const,
-      },
-    },
-  };
+//   return (
+//     <section className="relative bg-gradient-to-b from-white via-gray-50 to-white py-20 overflow-hidden">
+//       <div className="container mx-auto px-6 lg:px-12 relative z-10">
+//         {/* Header */}
+//         <motion.div
+//           className="text-center mb-16"
+//           initial={{ opacity: 0, y: -30 }}
+//           whileInView={{ opacity: 1, y: 0 }}
+//           transition={{ duration: 0.6 }}
+//         >
+//           <h2 className="text-4xl font-extrabold text-gray-800 mb-4">
+//             What Our Clients Say
+//           </h2>
 
-  return (
-    <section className="py-16 bg-white relative overflow-hidden">
-      {/* Decorative circles in gray tones */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gray-100 rounded-full blur-3xl"></div>
-      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gray-200 rounded-full blur-3xl"></div>
-      
-      <div className="container mx-auto px-4 relative z-10">
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
-            What Our Customers Say
-          </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-gray-800 via-gray-500 to-gray-800 mx-auto mb-6 relative">
-            <div className="absolute -top-1 left-0 w-6 h-3 bg-black rounded-full animate-bounce"></div>
-          </div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Don't just take our word for it – here's what our satisfied customers have to say
-          </p>
-        </motion.div>
-        
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-        >
-          {testimonials.map((testimonial, index) => (
-            <motion.div 
-              key={index} 
-              variants={itemVariants}
-              whileHover={{ 
-                y: -10, 
-                transition: { duration: 0.3, ease: "easeInOut" }
-              }}
-            >
-              <TestimonialCard {...testimonial} />
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-    </section>
-  );
-};
+//           {/* Decorative line + bouncing circle */}
+//           <div className="w-24 h-1 bg-gradient-to-r from-gray-800 via-gray-500 to-gray-800 mx-auto mb-6 relative group">
+//             <div className="absolute -top-1 left-0 w-6 h-3 bg-black rounded-full animate-bounce group-hover:bg-white"></div>
+//           </div>
 
-export default TestimonialsSection;
+//           {/* Fixed hover text */}
+//           <p className="text-lg text-gray-600 max-w-2xl mx-auto transition-colors duration-300 group-hover:text-black">
+//             Don&apos;t just take our word for it – here&apos;s what our satisfied
+//             customers have to say
+//           </p>
+//         </motion.div>
+
+//         {/* Testimonials */}
+//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+//           {testimonials.map((testimonial, index) => (
+//             <motion.div
+//               key={index}
+//               className="relative bg-white shadow-xl rounded-2xl p-8 hover:shadow-2xl transition-shadow duration-300 group"
+//               initial={{ opacity: 0, y: 40 }}
+//               whileInView={{ opacity: 1, y: 0 }}
+//               transition={{ duration: 0.6, delay: index * 0.2 }}
+//             >
+//               {/* Quote mark */}
+//               <div className="absolute top-4 right-6 text-6xl text-gray-200 font-serif">
+//                 “
+//               </div>
+
+//               {/* Customer image */}
+//               <div className="flex items-center mb-6">
+//                 <Image
+//                   src={testimonial.image}
+//                   alt={testimonial.name}
+//                   width={60}
+//                   height={60}
+//                   className="w-14 h-14 rounded-full object-cover border-2 border-gray-300"
+//                 />
+//                 <div className="ml-4">
+//                   <h4 className="text-lg font-semibold text-gray-800 group-hover:text-black">
+//                     {testimonial.name}
+//                   </h4>
+//                   <p className="text-sm text-black">{testimonial.role}</p>
+//                 </div>
+//               </div>
+
+//               {/* Feedback */}
+//               <p className="text-gray-500 italic group-hover:text-black transition-colors duration-300">
+//                 {testimonial.feedback}
+//               </p>
+//             </motion.div>
+//           ))}
+//         </div>
+//       </div>
+
+//       {/* Background glow */}
+//       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-100 to-transparent opacity-70"></div>
+//     </section>
+//   );
+// };
+
+// export default TestimonialsSection;
