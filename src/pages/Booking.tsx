@@ -20,10 +20,12 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import {
-  services,
+  service,
   additionalServices,
   timeSlots,
-  cityStateMap, vehicleTypes, calculatePrice,
+  cityStateMap,
+  vehicleTypes,
+  calculatePrice as baseCalculatePrice,
 } from "@/utils/services";
 import {
   Popover,
@@ -42,8 +44,20 @@ import {
 } from "@/components/ui/dialog";
 import OrderSummaryAccordion from "@/components/OrderSummary";
 
-
-
+// ✅ Safe wrapper for calculatePrice
+const calculatePrice = (
+  vehicleType: string,
+  packageId: string,
+  serviceCategory: string,
+  vehicleSize?: number
+) => {
+  const price = baseCalculatePrice(vehicleType, packageId, serviceCategory, vehicleSize || 0);
+  if (!price || isNaN(price)) {
+    console.warn("Price not found → defaulting 0", { vehicleType, packageId, serviceCategory, vehicleSize });
+    return 0;
+  }
+  return price;
+};
 
 // ---------------- CONFIRMATION MODAL ----------------
 const ConfirmationModal = ({ open, onClose, formData, total }: any) => {
@@ -190,10 +204,8 @@ const Booking = () => {
     return total;
   };
 
-
   const totalPrice = calculateTotalPrice();
   const discountedPrice = isPromoValid ? totalPrice * 0.85 : totalPrice;
-
 
   // Steps validation
   const validateStep = () => {
@@ -286,12 +298,9 @@ const Booking = () => {
             </div>
           </div>
 
-
-
           <Card className="border-0 shadow-xl bg-white">
             <CardContent className="p-8">
               <form onSubmit={handleSubmit}>
-
                 {/* STEP 1 - Vehicle Info */}
                 {step === 1 && (
                   <motion.div initial="hidden" animate="visible" variants={fadeIn} className="space-y-6">
@@ -361,7 +370,7 @@ const Booking = () => {
                     {/* Service Packages */}
                     {formData.vehicleType && (
                       <div className="grid md:grid-cols-2 gap-4">
-                        {Object.entries(services[formData.vehicleType] || {}).map(
+                        {Object.entries(service[formData.vehicleType] || {}).map(
                           ([serviceCategory, packagesOrService]) => {
 
                             // Car/SUV/Truck/Van/Bike packages (nested)
@@ -377,9 +386,6 @@ const Booking = () => {
                                     Number(formData.vehicleSize)
                                   );
 
-                                  // Assert pkg as a proper type
-                                  const typedPkg = pkg as { name: string; includes?: string[] };
-
                                   return (
                                     <div
                                       key={packageId}
@@ -394,14 +400,22 @@ const Booking = () => {
                                       }
                                     >
                                       <div className="flex justify-between font-medium">
-                                        <span>{typedPkg.name}</span>
+                                        <span>{(pkg as { name: string }).name}</span>
                                         <span>${price}</span>
                                       </div>
+
                                       <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
-                                        {typedPkg.includes?.map((i: string, idx: number) => (
-                                          <li key={idx}>{i}</li>
-                                        ))}
+                                        {Array.isArray((pkg as { includes?: string[] | string }).includes)
+                                          ? (pkg as { includes?: string[] }).includes?.map(
+                                            (i: string, idx: number) => <li key={idx}>{i}</li>
+                                          )
+                                          : typeof (pkg as { includes?: string }).includes === "string"
+                                            ? (pkg as { includes?: string }).includes
+                                              ?.split(",")
+                                              .map((i: string, idx: number) => <li key={idx}>{i.trim()}</li>)
+                                            : null}
                                       </ul>
+
                                       {isSelected && (
                                         <p className="text-sm text-green-600 flex items-center mt-2">
                                           <Check size={14} className="mr-1" /> Selected
@@ -409,6 +423,7 @@ const Booking = () => {
                                       )}
                                     </div>
                                   );
+
                                 }
                               );
                             }
@@ -481,25 +496,18 @@ const Booking = () => {
                     )}
 
                     {/* Navigation */}
-                    <div className="flex justify-between mt-6">
-                      <Button onClick={prevStep}
-                        className="bg-black text-white hover:bg-gray-600"
-                      >Back</Button>
+                    <div className="flex justify-between mt-6 0">
+                      <Button onClick={prevStep}  className="bg-black text-white hover:bg-gray-600">Back</Button>
                       <Button
                         onClick={nextStep}
                         disabled={!formData.packageType}
-                        className="bg-black text-white hover:bg-gray-600"
-
-
+                         className="bg-black text-white hover:bg-gray-600"
                       >
                         Next
                       </Button>
                     </div>
                   </motion.div>
                 )}
-
-
-
                 {/* STEP 3 - Customer Info */}
                 {step === 3 && (
                   <motion.div initial="hidden" animate="visible" variants={fadeIn} className="space-y-6">
@@ -650,16 +658,14 @@ const Booking = () => {
                       )}
                     </div>
 
-
-                    {/* Order Summary */}
+                
+                  {/* Order Summary */}
                     <OrderSummaryAccordion
                       formData={formData}
                       totalPrice={totalPrice}
                       discountedPrice={discountedPrice}
                       isPromoValid={isPromoValid}
                     />
-
-
 
                     {/* Navigation */}
                     <div className="flex justify-between">
@@ -672,7 +678,6 @@ const Booking = () => {
                     </div>
                   </motion.div>
                 )}
-
               </form>
             </CardContent>
           </Card>
@@ -694,4 +699,3 @@ const Booking = () => {
 };
 
 export default Booking;
-

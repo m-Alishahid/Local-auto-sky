@@ -1,200 +1,220 @@
 // src/utils/services.ts
 
-// ---------------- Types ----------------
+// ---------------- Vehicle Service Packages ----------------
 export type ServicePackage = {
   name: string;
-  price?: number;        // absolute price (for fixed-price packages)
-  pricePerFt?: number;   // price-per-foot (for boats / rvs)
+  price?: number;
+  pricePerFt?: number;
   includes: string[];
 };
 
-export type serviceType = {
-  id: string;
-  name: string;
-  packages: ServicePackage[];
-};
-
 export type VehicleService = {
-  interior?: Record<string, ServicePackage>;
-  exterior?: Record<string, ServicePackage>;
-  full?: Record<string, ServicePackage>;
+  interior?: Record<string, ServicePackage> | ServicePackage;
+  exterior?: Record<string, ServicePackage> | ServicePackage;
+  full: Record<string, ServicePackage> | ServicePackage;
+  [key: string]: any; // Allow string indexing
 };
 
-// ---------------- Vehicle Services (detailed) ----------------
-export const services: Record<string, VehicleService> = {
-  sedan: {
-    interior: {
-      basic: {
-        name: "Basic Interior",
-        price: 150,
-        includes: [
-          "Vacuum carpets & floor mats",
-          "Wipe dashboard, console & cupholders",
-          "Clean interior windows & mirrors",
-          "Light dusting",
-          "Air freshener"
-        ]
-      },
-      premium: {
-        name: "Premium Interior",
-        price: 230,
-        includes: [
-          "Full vacuum of seats, carpets & mats",
-          "Shampoo upholstery & carpets",
-          "Leather/vinyl cleaning & conditioning",
-          "Deep clean door panels & pockets",
-          "Odor elimination treatment"
-        ]
-      }
-    },
-    exterior: {
-      basic: {
-        name: "Basic Exterior",
-        price: 130,
-        includes: [
-          "Hand wash with biodegradable soap",
-          "Rinse & hand dry with microfiber",
-          "Clean exterior windows & mirrors",
-          "Basic tire shine"
-        ]
-      },
-      premium: {
-        name: "Premium Exterior",
-        price: 180,
-        includes: [
-          "Foam cannon pre-wash",
-          "Clay bar treatment (if needed)",
-          "Hand wax/sealant",
-          "Wheel & tire deep clean + protectant",
-          "Bug & tar removal"
-        ]
-      }
-    },
-    full: {
-      basic: {
-        name: "Basic Full",
-        price: 250,
-        includes: ["Basic Interior + Basic Exterior"]
-      },
-      premium: {
-        name: "Premium Full",
-        price: 380,
-        includes: ["Premium Interior + Premium Exterior"]
-      }
-    }
-  },
-
+export const service: Record<string, VehicleService> = {
   suv: {
     interior: {
       basic: {
         name: "Basic Interior",
         price: 180,
         includes: [
-          "Vacuum carpets, mats & seats",
-          "Wipe dashboard, console & vents",
-          "Clean interior windows",
-          "Air freshener"
-        ]
+          "Vacuum Carpets & Floor Mats",
+          "Wipe Down Dashboard, Console & Cupholders",
+          "Clean Windows (Inside)",
+          "Clean Door Panels & Pockets",
+          "Light Dusting",
+          "Air Freshener",
+        ],
       },
       premium: {
         name: "Premium Interior",
-        price: 260,
+        price: 220,
         includes: [
-          "Full vacuum + seat shampoo",
-          "Leather conditioning (if applicable)",
-          "Deep clean crevices & vents",
-          "Sanitize high-touch surfaces",
-          "Odor removal"
-        ]
-      }
+          "Full Vacuum Carpets, Mats & Seats",
+          "Shampoo & Deep Clean Upholstery + Carpets",
+          "Leather/Vinyl Cleaning & Conditioning",
+          "Dashboard, Console & Trim Detailed",
+          "Interior Windows & Mirrors",
+          "Door Panels & Cupholders Sanitized",
+          "Odor Elimination",
+        ],
+      },
     },
     exterior: {
       basic: {
         name: "Basic Exterior",
         price: 160,
         includes: [
-          "Hand wash & rinse",
-          "Hand dry with microfiber",
-          "Clean mirrors & windows",
-          "Tire dressing"
-        ]
+          "Biodegradable Soap Wash",
+          "Rinse & Pressure Clean",
+          "Hand Dry with Microfiber Towels",
+          "Clean Windows & Mirrors (Outside)",
+          "Basic Tire Shine",
+        ],
       },
       premium: {
         name: "Premium Exterior",
-        price: 210,
+        price: 190,
         includes: [
-          "Foam pre-wash",
-          "Clay bar + paint decontamination",
-          "Wax or sealant application",
-          "Deep wheel & tire detail",
-          "Trim & plastic restoration"
-        ]
-      }
+          "Foam Cannon Wash",
+          "Clay Bar Treatment",
+          "Hand Wax/Sealant",
+          "Windows & Mirrors Polished",
+          "Wheel & Tire Deep Cleaning + Shine",
+          "Bug & Tar Removal",
+        ],
+      },
     },
     full: {
       basic: {
         name: "Basic Full",
-        price: 320,
-        includes: ["Basic Interior + Basic Exterior"]
+        price: 220,
+        includes: ["Basic Interior + Basic Exterior Packages"],
       },
       premium: {
         name: "Premium Full",
-        price: 460,
-        includes: ["Premium Interior + Premium Exterior"]
-      }
-    }
+        price: 300,
+        includes: ["Premium Interior + Premium Exterior Packages"],
+      },
+    },
+  },
+
+  sedan: {
+    interior: {
+      basic: {
+        name: "Basic Interior",
+        price: 190,
+        includes: [
+          "Vacuum Carpets & Floor Mats",
+          "Wipe Down Dashboard, Console & Cupholders",
+          "Clean Windows (Inside)",
+          "Clean Door Panels & Pockets",
+          "Light Dusting",
+          "Air Freshener",
+        ],
+      },
+      premium: {
+        name: "Premium Interior",
+        price: 230,
+        includes: [
+          "Full Vacuum Carpets, Mats & Seats",
+          "Shampoo & Deep Clean Upholstery + Carpets",
+          "Leather/Vinyl Cleaning & Conditioning",
+          "Dashboard, Console & Trim Detailed",
+          "Interior Windows & Mirrors",
+          "Door Panels & Cupholders Sanitized",
+          "Odor Elimination",
+        ],
+      },
+    },
+    exterior: {
+      basic: {
+        name: "Basic Exterior",
+        price: 170,
+        includes: [
+          "Biodegradable Soap Wash",
+          "Rinse & Pressure Clean",
+          "Hand Dry with Microfiber Towels",
+          "Clean Windows & Mirrors (Outside)",
+          "Basic Tire Shine",
+        ],
+      },
+      premium: {
+        name: "Premium Exterior",
+        price: 200,
+        includes: [
+          "Foam Cannon Wash",
+          "Clay Bar Treatment",
+          "Hand Wax/Sealant",
+          "Windows & Mirrors Polished",
+          "Wheel & Tire Deep Cleaning + Shine",
+          "Bug & Tar Removal",
+        ],
+      },
+    },
+    full: {
+      basic: {
+        name: "Basic Full",
+        price: 230,
+        includes: ["Basic Interior + Basic Exterior Packages"],
+      },
+      premium: {
+        name: "Premium Full",
+        price: 310,
+        includes: ["Premium Interior + Premium Exterior Packages"],
+      },
+    },
   },
 
   truck: {
     interior: {
       basic: {
         name: "Basic Interior",
-        price: 200,
+        price: 180,
         includes: [
-          "Cab vacuum & mat cleaning",
-          "Wipe dash & console",
-          "Clean windows & mirrors"
-        ]
+          "Vacuum Carpets & Floor Mats",
+          "Wipe Down Dashboard, Console & Cupholders",
+          "Clean Windows (Inside)",
+          "Clean Door Panels & Pockets",
+          "Light Dusting",
+          "Air Freshener",
+        ],
       },
       premium: {
         name: "Premium Interior",
-        price: 280,
+        price: 220,
         includes: [
-          "Deep vacuum + upholstery shampoo",
-          "Leather/vinyl conditioning",
-          "Sanitize steering wheel & controls"
-        ]
-      }
+          "Full Vacuum Carpets, Mats & Seats",
+          "Shampoo & Deep Clean Upholstery + Carpets",
+          "Leather/Vinyl Cleaning & Conditioning",
+          "Dashboard, Console & Trim Detailed",
+          "Interior Windows & Mirrors",
+          "Door Panels & Cupholders Sanitized",
+          "Odor Elimination",
+        ],
+      },
     },
     exterior: {
       basic: {
         name: "Basic Exterior",
-        price: 170,
-        includes: ["Pressure rinse", "Hand wash", "Hand dry", "Tire dressing"]
+        price: 190,
+        includes: [
+          "Biodegradable Soap Wash",
+          "Rinse & Pressure Clean",
+          "Hand Dry with Microfiber Towels",
+          "Clean Windows & Mirrors (Outside)",
+          "Basic Tire Shine",
+        ],
       },
       premium: {
         name: "Premium Exterior",
-        price: 240,
+        price: 210,
         includes: [
-          "Foam cannon wash",
-          "Undercarriage rinse",
-          "Wax / sealant",
-          "Wheel detail & protectant"
-        ]
-      }
+          "Foam Cannon Wash",
+          "Clay Bar Treatment",
+          "Hand Wax/Sealant",
+          "Windows & Mirrors Polished",
+          "Wheel & Tire Deep Cleaning + Shine",
+          "Bug & Tar Removal",
+        ],
+      },
     },
     full: {
       basic: {
         name: "Basic Full",
-        price: 360,
-        includes: ["Basic Interior + Basic Exterior"]
+        price: 250,
+        includes: ["Basic Interior + Basic Exterior Packages"],
       },
       premium: {
         name: "Premium Full",
-        price: 520,
-        includes: ["Premium Interior + Premium Exterior"]
-      }
-    }
+        price: 320,
+        includes: ["Premium Interior + Premium Exterior Packages"],
+      },
+    },
   },
 
   van: {
@@ -202,120 +222,183 @@ export const services: Record<string, VehicleService> = {
       basic: {
         name: "Basic Interior",
         price: 210,
-        includes: ["Vacuum & wipe down", "Window cleaning", "Air freshener"]
+        includes: [
+          "Vacuum Carpets & Floor Mats",
+          "Wipe Down Dashboard, Console & Cupholders",
+          "Clean Windows (Inside)",
+          "Clean Door Panels & Pockets",
+          "Light Dusting",
+          "Air Freshener",
+        ],
       },
       premium: {
         name: "Premium Interior",
-        price: 300,
-        includes: ["Deep vacuum + shampoo", "Sanitize surfaces", "Leather care if present"]
-      }
+        price: 240,
+        includes: [
+          "Full Vacuum Carpets, Mats & Seats",
+          "Shampoo & Deep Clean Upholstery + Carpets",
+          "Leather/Vinyl Cleaning & Conditioning",
+          "Dashboard, Console & Trim Detailed",
+          "Interior Windows & Mirrors",
+          "Door Panels & Cupholders Sanitized",
+          "Odor Elimination",
+        ],
+      },
     },
     exterior: {
       basic: {
         name: "Basic Exterior",
-        price: 180,
-        includes: ["Hand wash", "Dry", "Tire dressing"]
+        price: 190,
+        includes: [
+          "Biodegradable Soap Wash",
+          "Rinse & Pressure Clean",
+          "Hand Dry with Microfiber Towels",
+          "Clean Windows & Mirrors (Outside)",
+          "Basic Tire Shine",
+        ],
       },
       premium: {
         name: "Premium Exterior",
-        price: 250,
-        includes: ["Foam wash", "Wax", "Wheel detail"]
-      }
+        price: 240,
+        includes: [
+          "Foam Cannon Wash",
+          "Clay Bar Treatment",
+          "Hand Wax/Sealant",
+          "Windows & Mirrors Polished",
+          "Wheel & Tire Deep Cleaning + Shine",
+          "Bug & Tar Removal",
+        ],
+      },
     },
     full: {
       basic: {
         name: "Basic Full",
-        price: 380,
-        includes: ["Basic Interior + Basic Exterior"]
+        price: 220,
+        includes: ["Basic Interior + Basic Exterior Packages"],
       },
       premium: {
         name: "Premium Full",
-        price: 560,
-        includes: ["Premium Interior + Premium Exterior"]
-      }
-    }
+        price: 300,
+        includes: ["Premium Interior + Premium Exterior Packages"],
+      },
+    },
   },
 
   bike: {
     full: {
       basic: {
-        name: "Bike Full",
-        price: 120,
-        includes: ["Pressure rinse", "Mild soap wash", "Chain degrease & lube", "Tire shine"]
+        name: "Bike Full Detailing",
+        price: 170,
+        includes: [
+          "Pressure Rinse Frame, Tank, Fenders",
+          "Gentle Soap Wash + Hand Dry",
+          "Wheels, Rims & Spokes Cleaning",
+          "Degrease & Polish Exhaust & Chrome Parts",
+          "Chain & Sprocket Cleaning + Lubrication",
+          "Headlight & Mirrors Polish",
+          "Tire Shine",
+          "Seat Deep Clean & Condition",
+          "Handlebar & Console Wipe Down",
+          "Plastic Covers & Panels Protected",
+          "UV Protectant on Exposed Surfaces",
+        ],
       },
-      premium: {
-        name: "Bike Premium",
-        price: 180,
-        includes: ["Deep clean + polish", "Chrome polish", "Detail & protect"]
-      }
-    }
+    },
   },
 
   boat: {
     interior: {
-      basic: {
-        name: "Boat Interior (per ft)",
-        pricePerFt: 19,
-        includes: [
-          "Vacuum cabin & seats",
-          "Wipe down consoles",
-          "Interior window cleaning"
-        ]
-      }
+      name: "Boat Interior",
+      pricePerFt: 19,
+      includes: [
+        "Vacuum Carpets, Seats & Storage",
+        "Shampoo & Deep Clean Upholstery",
+        "Mildew & Stain Removal",
+        "Clean & Sanitize Cupholders, Dash & Panels",
+        "Polish Interior Chrome/Metal Fixtures",
+        "UV Protectant on Vinyl/Leather",
+        "Interior Windows & Mirrors",
+        "Air Freshener/Deodorizer",
+      ],
     },
     exterior: {
-      basic: {
-        name: "Boat Exterior (per ft)",
-        pricePerFt: 23,
-        includes: [
-          "Pressure rinse hull & deck",
-          "Soap wash & rinse",
-          "Scrub non-skid surfaces"
-        ]
-      }
+      name: "Boat Exterior",
+      pricePerFt: 23,
+      includes: [
+        "Pressure Rinse Hull & Deck",
+        "Gentle Soapy Wash (Salt/Dirt Removal)",
+        "Clean & Polish Windows/Windshield",
+        "Scrub & Brighten Non-Skid Surfaces",
+        "Polish Chrome & Metal Fixtures",
+        "Wax/Sealant for UV & Water Protection",
+        "Tire Shine (Trailer Tires)",
+      ],
     },
     full: {
-      basic: {
-        name: "Boat Full (per ft)",
-        pricePerFt: 35,
-        includes: ["Interior + Exterior (per ft)"]
-      }
-    }
+      name: "Boat Full",
+      pricePerFt: 35,
+      includes: ["Full Interior + Full Exterior Packages"],
+    },
   },
 
   jetski: {
     full: {
-      basic: {
-        name: "JetSki Full",
-        price: 220,
-        includes: ["Pressure rinse", "Shampoo & hand dry", "Seat & console clean", "Wax/protect"]
-      }
-    }
+      name: "Jet Ski Full Detailing",
+      price: 220,
+      includes: [
+        "Pressure Rinse Hull & Body",
+        "Gentle Soap Wash + Hand Dry",
+        "Clean & Polish Mirrors/Lights/Windshield",
+        "Scrub Non-Skid Mats",
+        "Polish & Protect Chrome/Metal Fixtures",
+        "Wax/Sealant Protection",
+        "Deep Clean Seat Upholstery",
+        "Mildew/Stain/Salt Removal",
+        "Wipe Down Console & Handlebars",
+        "UV Protectant on Surfaces",
+        "Storage Compartments Cleaned",
+      ],
+    },
   },
 
   rv: {
     interior: {
-      basic: {
-        name: "RV Interior (per ft)",
-        pricePerFt: 25,
-        includes: ["Vacuum floor & upholstery", "Wipe surfaces", "Bathroom quick clean"]
-      }
+      name: "RV Interior",
+      pricePerFt: 25,
+      includes: [
+        "Vacuum Carpets, Upholstery & Floors",
+        "Shampoo/Steam Clean Carpets & Upholstery",
+        "Leather/Fabric Seats Deep Clean",
+        "Kitchen Cleaning (Counters, Sink, Microwave, Fridge Exterior)",
+        "Bathroom Cleaning (Shower, Toilet, Sink, Mirrors)",
+        "Dust & Wipe Surfaces",
+        "Interior Windows & Mirrors",
+        "Clean Storage Compartments & Cabinets",
+        "UV Protectant for Leather/Vinyl/Plastic",
+        "Odor Elimination & Air Freshener",
+      ],
     },
     exterior: {
-      basic: {
-        name: "RV Exterior (per ft)",
-        pricePerFt: 25,
-        includes: ["Pressure wash sides & roof", "Hand dry", "Tire & trim clean"]
-      }
+      name: "RV Exterior",
+      pricePerFt: 25,
+      includes: [
+        "Pressure Wash Roof, Sides & Awning",
+        "Biodegradable Soap Wash",
+        "Hand Dry with Microfiber Towels",
+        "Clean Windows/Mirrors/Lights",
+        "Roof Wash & Sealant",
+        "Wheel & Tire Cleaning + Shine",
+        "Polish Chrome & Metal Fixtures",
+        "Wax or Ceramic Sealant",
+        "Clean Door Jams & Storage Bay Seals",
+      ],
     },
     full: {
-      basic: {
-        name: "RV Full (per ft)",
-        pricePerFt: 40,
-        includes: ["Full interior + exterior (per ft)"]
-      }
-    }
-  }
+      name: "RV Full",
+      pricePerFt: 40,
+      includes: ["Full Interior + Full Exterior Packages"],
+    },
+  },
 };
 
 // ---------------- Vehicle Types ----------------
@@ -327,7 +410,7 @@ export const vehicleTypes = [
   { id: "boat", name: "Boat" },
   { id: "rv", name: "RV" },
   { id: "jetski", name: "JetSki" },
-  { id: "bike", name: "Bike" }
+  { id: "bike", name: "Bike" },
 ];
 
 // ---------------- Additional Services ----------------
@@ -335,17 +418,18 @@ export const additionalServices = [
   { id: "odor_removal", name: "Odor Removal", price: 50 },
   { id: "pet_hair", name: "Pet Hair Removal", price: 40 },
   { id: "engine_cleaning", name: "Engine Cleaning", price: 70 },
-  { id: "headlight_restore", name: "Headlight Restoration", price: 60 }
+  { id: "headlight_restore", name: "Headlight Restoration", price: 60 },
 ];
 
 // ---------------- Time Slots ----------------
 export const timeSlots = [
   "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM",
   "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM",
-  "04:00 PM", "05:00 PM"
+  "04:00 PM", "05:00 PM",
 ];
 
-// ---------------- City-State Map (Virginia list as requested earlier) ----------------
+
+// ---------------- City-State Map ----------------
 export const cityStateMap: Record<string, string> = {
   "Alexandria": "Virginia",
   "Bristol": "Virginia",
@@ -384,120 +468,106 @@ export const cityStateMap: Record<string, string> = {
   "Virginia Beach": "Virginia",
   "Waynesboro": "Virginia",
   "Williamsburg": "Virginia",
-  "Winchester": "Virginia"
+  "Winchester": "Virginia",
 };
 
-// ---------------- serviceTypes (for email templates / simpler lookup) ----------------
-export const serviceTypes: serviceType[] = [
+
+// ---------------- Service Types ----------------
+export const serviceTypes = [
   {
     id: "interior",
     name: "Interior",
     packages: [
-      { name: "Basic Interior", price: 150, includes: [] },
-      { name: "Premium Interior", price: 250, includes: [] }
-    ]
+      { id: "basic", name: "Basic Interior", price: 180 },
+      { id: "premium", name: "Premium Interior", price: 220 },
+    ],
   },
   {
     id: "exterior",
     name: "Exterior",
     packages: [
-      { name: "Basic Exterior", price: 130, includes: [] },
-      { name: "Premium Exterior", price: 200, includes: [] }
-    ]
+      { id: "basic", name: "Basic Exterior", price: 160 },
+      { id: "premium", name: "Premium Exterior", price: 190 },
+    ],
   },
   {
     id: "full",
     name: "Full",
     packages: [
-      { name: "Basic Full", price: 250, includes: [] },
-      { name: "Premium Full", price: 450, includes: [] }
-    ]
-  }
+      { id: "basic", name: "Basic Full", price: 220 },
+      { id: "premium", name: "Premium Full", price: 300 },
+    ],
+  },
 ];
 
-// ---------------- Price helpers (type-safe access) ----------------
 
-/**
- * Calculate price for a single selected package.
- * - For pricePerFt packages (boat/rv) pass vehicleSize (number).
- * - For other vehicles, packageId is like "interior-basic" or "full-premium".
- */
-export const calculatePrice = (
-  vehicleType: string,
-  packageIdOrCategory: string,
-  serviceCategory?: string,
-  vehicleSize?: number
-): number => {
-  // If caller passes serviceCategory separate (legacy), prefer it, else parse packageIdOrCategory
-  let category = serviceCategory;
-  let packageKey = packageIdOrCategory;
 
-  // If packageIdOrCategory looks like "interior-basic" split it
-  if (!serviceCategory && typeof packageIdOrCategory === "string" && packageIdOrCategory.includes("-")) {
-    const parts = packageIdOrCategory.split("-");
-    category = parts[0];
-    packageKey = parts[1];
-  }
-
-  // Safe lookups using keyof
-  const vs = services[vehicleType];
-  if (!vs) return 0;
-
-  // Boats / RVs — use pricePerFt
-  if (vehicleType === "boat" || vehicleType === "rv") {
-    const cat = category as keyof VehicleService;
-    const pkg = vs[cat];
-    // Some entries for boats/rv are stored only as 'full' or 'interior' with pricePerFt on basic.
-    // We'll try to find a 'basic' package if present
-    if (!pkg) return 0;
-    // if pkg has numeric keys like 'basic', pick that, else try first value
-    const firstKey = Object.keys(pkg)[0];
-    const found = (pkg as Record<string, ServicePackage>)[packageKey] || (pkg as Record<string, ServicePackage>)[firstKey];
-    const pricePerFt = found?.pricePerFt ?? 0;
-    return pricePerFt * (vehicleSize ?? 0);
-  }
-
-  // Normal vehicles (sedan, suv, truck, van, bike, jetski)
-  const cat = (category ?? "full") as keyof VehicleService;
-  const pkgRecord = vs[cat] as Record<string, ServicePackage> | undefined;
-  if (!pkgRecord) return 0;
-  const pkg = pkgRecord[packageKey];
-  return pkg?.price ?? 0;
-};
-
-/**
- * Calculate total price from a booking form-like object:
- * formData shape expected to contain:
- * { vehicleType, packageType (string like "interior-basic"), vehicleSize (number for per-ft), additionalServices: string[] }
- */
-export const calculateTotalPrice = (formData: any): number => {
+// ---------------- Price Calculation ----------------
+export const calculateTotalPrice = (formData: any) => {
   let total = 0;
-  const vehicleType = formData?.vehicleType;
-  const packageType = formData?.packageType;
-  const vehicleSize = Number(formData?.vehicleSize || 0);
-  const addons: string[] = Array.isArray(formData?.additionalServices) ? formData.additionalServices : [];
+  const { vehicleType, packageType, vehicleSize, additionalServices: addons } = formData;
 
   if (!vehicleType || !packageType) return 0;
 
-  // If packageType includes "-" parse category and key
-  const [categoryPart, pkgKeyPart] = packageType.includes("-") ? packageType.split("-") : [packageType, "basic"];
+  // Cars, Trucks, Vans
+  if (["suv", "truck", "van", "sedan"].includes(vehicleType)) {
+    const [category, pkgKey] = packageType.split("-"); // e.g., "interior-basic"
+    const cat = category as keyof VehicleService;
+    const pkgObj = service[vehicleType]?.[cat];
+    const pkg = (pkgObj && typeof pkgObj === "object" && "name" in pkgObj === false)
+      ? (pkgObj as Record<string, ServicePackage>)[pkgKey]
+      : undefined;
+    if (pkg) total += pkg.price ?? 0;
+  }
 
-  // Price for boats/rv (per ft)
-  if (vehicleType === "boat" || vehicleType === "rv") {
-    const pricePerFt = calculatePrice(vehicleType, categoryPart, categoryPart, vehicleSize);
-    total += pricePerFt;
-  } else {
-    // normal: look up price
-    total += calculatePrice(vehicleType, packageType);
+  // Boats / RVs (pricePerFt)
+  if (["boat", "rv"].includes(vehicleType)) {
+    const pkg = service[vehicleType]?.[packageType as keyof VehicleService];
+    if (pkg && vehicleSize) total += Number(pkg.pricePerFt ?? 0) * Number(vehicleSize);
+  }
+
+  // Jetski / Bike
+  if (["jetski", "bike"].includes(vehicleType)) {
+    const pkg = service[vehicleType]?.[packageType];
+    if (pkg) total += pkg.price ?? 0;
   }
 
   // Add-ons
-  if (addons && addons.length) {
-    addons.forEach((addId) => {
+  if (addons?.length) {
+    addons.forEach((addId: string) => {
       const add = additionalServices.find((a) => a.id === addId);
       if (add) total += add.price;
     });
   }
 
   return total;
+};
+// utils/calculatePrice.ts
+
+export const calculatePrice = (
+  vehicleType: string,
+  packageId: string,        // e.g., "interior-basic"
+  serviceCategory: string,  // e.g., "interior"
+  vehicleSize?: number
+) => {
+  if (["boat", "rv"].includes(vehicleType)) {
+    const pricePerFt = service[vehicleType]?.[serviceCategory]?.pricePerFt || 0;
+    return pricePerFt * (vehicleSize || 0);
+  }
+
+  if (["sedan", "suv", "truck", "van", "bike"].includes(vehicleType)) {
+    const [, packageKey] = packageId.split("-"); // "interior-basic" => ["interior", "basic"]
+    return service[vehicleType]?.[serviceCategory]?.[packageKey]?.price || 0;
+  }
+
+  if (["jetski"].includes(vehicleType)) {
+    return service[vehicleType]?.[serviceCategory]?.price || 0;
+  }
+
+
+
+
+  return 0;
+
+
 };
