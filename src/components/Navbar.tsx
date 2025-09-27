@@ -31,7 +31,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           {/* ✅ Logo */}
           <Link href="/" className="flex items-center">
-            <div className="h-20 w-auto flex items-center"> 
+            <div className="h-20 w-auto flex items-center">
               <Image
                 src="/lovable-uploads/logo.png"
                 alt="LocalAutoSpa Logo"
@@ -63,16 +63,18 @@ const Navbar = () => {
               {dropdownOpen && (
                 <div className="absolute left-0 mt-2 w-[260px] bg-gray-800 border border-gray-700 shadow-xl z-50 p-3 grid gap-2">
                   <Link
-                    href="/services/car-detailing"
+                    href="/services/ceramic-coating"
                     className="flex items-center gap-2 p-2 hover:bg-gray-700 transition-colors"
                     onClick={() => setDropdownOpen(false)}
                   >
                     <SprayCan size={18} className="text-gray-400" />
                     <div>
                       <p className="text-gray-200 text-sm font-medium">
-                        Exterior Wash
+                        Ceramic Coating
                       </p>
-                      <p className="text-xs text-gray-400">Shine & protection</p>
+                      <p className="text-xs text-gray-400">
+                        Shine & long-term protection
+                      </p>
                     </div>
                   </Link>
 
@@ -84,14 +86,16 @@ const Navbar = () => {
                     <Car size={18} className="text-gray-400" />
                     <div>
                       <p className="text-gray-200 text-sm font-medium">
-                        Interior Cleaning
+                        Window Tinting
                       </p>
-                      <p className="text-xs text-gray-400">Vacuum & stain removal</p>
+                      <p className="text-xs text-gray-400">
+                        Privacy & heat rejection
+                      </p>
                     </div>
                   </Link>
 
                   <Link
-                    href="/services/ceramic-coating"
+                    href="/services/car-detailing"
                     className="flex items-center gap-2 p-2 hover:bg-gray-700 transition-colors"
                     onClick={() => setDropdownOpen(false)}
                   >
@@ -100,7 +104,9 @@ const Navbar = () => {
                       <p className="text-gray-200 text-sm font-medium">
                         Full Detailing
                       </p>
-                      <p className="text-xs text-gray-400">Showroom condition</p>
+                      <p className="text-xs text-gray-400">
+                        Restore showroom condition
+                      </p>
                     </div>
                   </Link>
                 </div>
@@ -139,7 +145,7 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* ✅ Mobile Menu Content (outside nav, no rounded) */}
+      {/* ✅ Mobile Menu Content */}
       {mobileMenuOpen && (
         <div className="md:hidden fixed top-20 left-0 w-full bg-gray-900 shadow-lg p-4 space-y-3 z-40">
           <Link

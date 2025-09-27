@@ -24,10 +24,10 @@ const Footer = () => {
               Premium mobile detailing service — bringing the showroom shine directly to your doorstep with years of trusted expertise.
             </p>
             <div className="flex space-x-5">
-              <a href="https://facebook.com" className="hover:text-white transition-colors" aria-label="Facebook">
+              <a href="https://www.facebook.com/share/16d1cKZLL1/" className="hover:text-white transition-colors" aria-label="Facebook">
                 <Facebook size={20} />
               </a>
-              <a href="https://instagram.com" className="hover:text-white transition-colors" aria-label="Instagram">
+              <a href="https://www.instagram.com/autospalocal?igsh=bGRiMm1zcTA5OHU3" className="hover:text-white transition-colors" aria-label="Instagram">
                 <Instagram size={20} />
               </a>
               <a href="https://twitter.com" className="hover:text-white transition-colors" aria-label="Twitter">

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import ConfirmationModal from "@/components/ConfirmationModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, MapPin, Clock, ArrowRight } from "lucide-react";
+import ContactConfirmationModal from "@/components/ContactConfirmationModal";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -53,7 +53,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen">
-   
+
 
       <div className="bg-gradient-to-b from-gray-100 to-white pt-32 pb-16">
         <div className="container mx-auto px-4">
@@ -230,16 +230,16 @@ const Contact = () => {
         </div>
       </div>
 
-      <ConfirmationModal
+      <ContactConfirmationModal
         open={showConfirmation}
         onClose={handleCloseConfirmation}
+        formData={formData}
         title="Message Sent Successfully!"
-        description={`Thank you ${formData?.name || ""}! We've received your message and will get back to you as soon as possible at ${formData?.email || ""}.`}
-        formData={formData || { name: "", email: "", phone: "", message: "" }} // ✅ safe default
-        total={0} // ✅ required prop
+        description={`Thank you ${formData.name}! We'll get back to you at ${formData.email}.`}
       />
 
- 
+
+
     </div>
   );
 };
