@@ -38,10 +38,10 @@ const ServiceCard = ({
         <motion.img
           src={image}
           alt={title}
-          className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 grayscale"
+          className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 group-hover:grayscale"
           whileHover={{ scale: 1.05 }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-90"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
         <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
           <motion.span
             className="bg-white text-black px-3 py-1.5 rounded-full font-semibold text-sm shadow-lg"

@@ -7,13 +7,13 @@ import Image from "next/image";
 interface ServiceCardProps {
   title: string;
   description: string;
-  image: string;   // Example: "/exterior_after.png"
+  image: string; // Example: "/exterior_after.png"
   features: string[];
   price: string;
   link: string;
 }
 
-const MotionImage = motion(Image); // 👈 Image ko motion ke andar wrap kiya
+const MotionImage = motion(Image);
 
 const ServiceCard = ({
   title,
@@ -37,16 +37,15 @@ const ServiceCard = ({
       transition={{ duration: 0.5 }}
     >
       <div className="h-52 md:h-60 overflow-hidden relative group">
-        {/* ✅ Updated Next.js Image */}
+        {/* ✅ Image with actual colors (no overlay now) */}
         <MotionImage
-          src={image} // Must start with "/" if from public folder
+          src={image}
           alt={title}
           fill
-          className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
+          className="object-cover object-center transition-transform duration-700 group-hover:scale-110 filter-none"
           whileHover={{ scale: 1.05 }}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-decent-blue/80 to-transparent opacity-90"></div>
         <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
           <motion.span
             className="bg-white text-decent-blue px-3 py-1.5 rounded-full font-semibold text-sm shadow-lg"

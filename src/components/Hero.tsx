@@ -6,10 +6,15 @@ const Hero = () => {
   return (
     <div
       id="hero-section"
-      className="h-screen w-full overflow-hidden bg-black  flex items-center justify-center"
+      className="h-screen w-full  overflow-hidden flex items-center justify-center 
+                 bg-no-repeat bg-cover bg-center "
+      style={{ backgroundImage: "url('/hero_bg.jpg')" }} // 🔥 apna image path yahan do
     >
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-gray-900 to-black z-0" />
+      {/* Gradient Overlay (dark layer for text visibility) */}
+      {/* <div className="absolute inset-0 bg-gradient-to-b from-black/90 to-transparent z-0" /> */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-transparent z-0" />
+
+
 
       {/* Centered Content */}
       <div className="container mx-auto px-6 md:px-12 relative z-20 text-center">
@@ -20,32 +25,31 @@ const Hero = () => {
           className="space-y-6"
         >
           {/* Heading */}
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight">
-            Redefine Your Vehicle's <br />
-            <span className="text-gray-300 underline underline-offset-8 decoration-gray-500">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl  text-white leading-tight">
+            Redefine Your Vehicle's 
+            
               True Shine
-            </span>
+       
           </h1>
 
           {/* Paragraph */}
           <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
-            Experience premium detailing with{" "}
-            <span className="text-white font-semibold">Local Auto SPA</span>.  
-            Luxury treatments that bring out your car’s elegance & comfort.
+            Experience premium detailing with Local Auto SPA Luxury  treatments that bring out your car’s elegance & comfort.
           </p>
+
+        <br />
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
             <Link href="/booking">
-              <Button className="px-8 py-6 text-lg font-semibold rounded-full bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 ease-in-out">
+              <Button className="p-6 bg-white text-black hover:bg-white hover:text-underline">
                 Book Now
               </Button>
             </Link>
 
             <Link href="/services">
               <Button
-                variant="outline"
-                className="px-8 py-6 text-lg font-semibold rounded-full border-2 border-white text-black hover:bg-gray-600 hover:text-white shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 ease-in-out"
+                className="p-6 bg-black text-white border-2 border-white hover:bg-gray hover:text-underline "
               >
                 Explore Services
               </Button>

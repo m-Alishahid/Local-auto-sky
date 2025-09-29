@@ -32,7 +32,7 @@ export default function Home() {
       {/* Main Sections */}
       <div className="bg-white">
         <motion.div
-          id="premium-mobile-car-detailing"
+          id="premium-mobile-car"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}

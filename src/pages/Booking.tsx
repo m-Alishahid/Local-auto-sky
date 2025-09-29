@@ -289,7 +289,7 @@ const Booking = () => {
                   {/* Connector Line (between steps only) */}
                   {i < 2 && (
                     <div
-                      className={`h-0.5 flex-1 
+                      className={`h-0.5 w-16  /* 🔥 fixed width */
               ${step > i + 1 ? "bg-green-500" : "bg-gray-300"}`}
                     />
                   )}
@@ -297,6 +297,9 @@ const Booking = () => {
               ))}
             </div>
           </div>
+
+
+
 
           <Card className="border-0 shadow-xl bg-white">
             <CardContent className="p-8">
@@ -497,11 +500,11 @@ const Booking = () => {
 
                     {/* Navigation */}
                     <div className="flex justify-between mt-6 0">
-                      <Button onClick={prevStep}  className="bg-black text-white hover:bg-gray-600">Back</Button>
+                      <Button onClick={prevStep} className="bg-black text-white hover:bg-gray-600">Back</Button>
                       <Button
                         onClick={nextStep}
                         disabled={!formData.packageType}
-                         className="bg-black text-white hover:bg-gray-600"
+                        className="bg-black text-white hover:bg-gray-600"
                       >
                         Next
                       </Button>
@@ -658,8 +661,8 @@ const Booking = () => {
                       )}
                     </div>
 
-                
-                  {/* Order Summary */}
+
+                    {/* Order Summary */}
                     <OrderSummaryAccordion
                       formData={formData}
                       totalPrice={totalPrice}
