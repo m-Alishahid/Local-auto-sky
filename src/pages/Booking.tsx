@@ -25,7 +25,7 @@ import {
   timeSlots,
   cityStateMap,
   vehicleTypes,
-  calculatePrice as baseCalculatePrice,
+  calculatePrice as baseCalculatePrice, extraServices,
 } from "@/utils/services";
 import {
   Popover,
@@ -46,11 +46,7 @@ import OrderSummaryAccordion from "@/components/OrderSummary";
 
 // ✅ Safe wrapper for calculatePrice
 const calculatePrice = (
-  vehicleType: string,
-  packageId: string,
-  serviceCategory: string,
-  vehicleSize?: number
-) => {
+  vehicleType: string, packageId: string, serviceCategory: string, vehicleSize?: number, extraService?: string) => {
   const price = baseCalculatePrice(vehicleType, packageId, serviceCategory, vehicleSize || 0);
   if (!price || isNaN(price)) {
     console.warn("Price not found → defaulting 0", { vehicleType, packageId, serviceCategory, vehicleSize });
@@ -112,9 +108,34 @@ const Booking = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [formData, setFormData] = useState({
-    selectedServices: [] as { serviceType: string; package: string }[],
-    additionalServices: [] as string[],
+  const [formData, setFormData] = useState<{
+    selectedServices: { serviceType: string; package: string }[],
+    additionalServices: string[],
+    vehicleType: string,
+    vehicleMake: string,
+    vehicleModel: string,
+    vehicleYear: string,
+    vehicleColor: string,
+    vehicleWidth: string,
+    vehicleLength: string,
+    firstName: string,
+    lastName: string,
+    email: string,
+    phone: string,
+    address: string,
+    city: string,
+    state: string,
+    zip: string,
+    date: string,
+    timeSlot: string,
+    notes: string,
+    packageType: string,
+    serviceCategory: string,
+    vehicleSize: string,
+    extraService: string,
+  }>({
+    selectedServices: [],
+    additionalServices: [],
     vehicleType: "",
     vehicleMake: "",
     vehicleModel: "",
@@ -136,6 +157,7 @@ const Booking = () => {
     packageType: "",
     serviceCategory: "",
     vehicleSize: "",
+    extraService: "",
   });
 
   const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -271,32 +293,29 @@ const Booking = () => {
           {/* Progress Bar */}
           <div className="mb-12">
             <div className="flex items-center justify-between w-full">
-              {["Vehicle Info", "Package", "Customer Info"].map((label, i) => (
-                <div key={i} className="flex items-center flex-1">
-                  {/* Step Box */}
-                  <div
-                    className={`flex-1 text-center px-6 py-2 rounded-md text-sm font-medium shadow-md
-            ${step === i + 1
-                        ? "bg-black text-white"
-                        : step > i + 1
-                          ? "bg-green-500 text-white"
-                          : "bg-gray-200 text-gray-500"
-                      }`}
-                  >
-                    {label}
-                  </div>
+              {["Vehicle Info", "Package", "Customer Info"].map((label, i) => {
+                const isActive = step === i + 1;
+                const isCompleted = step > i + 1;
 
-                  {/* Connector Line (between steps only) */}
-                  {i < 2 && (
+                return (
+                  <div key={i} className="flex-1">
                     <div
-                      className={`h-0.5 w-16  /* 🔥 fixed width */
-              ${step > i + 1 ? "bg-green-500" : "bg-gray-300"}`}
-                    />
-                  )}
-                </div>
-              ))}
+                      className={`px-6 py-2 text-sm font-medium rounded-md shadow-md text-center border-2
+              ${isActive
+                          ? "bg-black text-white border-black"
+                          : isCompleted
+                            ? "bg-green-500 text-white border-green-300"
+                            : "bg-transparent text-gray-500 border-gray-300"
+                        }`}
+                    >
+                      {label}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
+
 
 
 
@@ -352,9 +371,12 @@ const Booking = () => {
                   >
                     <h2 className="text-xl font-semibold">Select Package</h2>
 
-                    {/* Show vehicle type selected in Step 1 */}
+                    {/* Vehicle type display */}
                     <p className="text-gray-700 mb-2">
-                      Vehicle Type: <span className="font-medium">{vehicleTypes.find(v => v.id === formData.vehicleType)?.name}</span>
+                      Vehicle Type:{" "}
+                      <span className="font-medium">
+                        {vehicleTypes.find((v) => v.id === formData.vehicleType)?.name}
+                      </span>
                     </p>
 
                     {/* Boat/RV size input */}
@@ -364,116 +386,151 @@ const Booking = () => {
                         placeholder="Enter size in feet"
                         value={formData.vehicleSize || ""}
                         onChange={(e) =>
-                          setFormData((prev) => ({ ...prev, vehicleSize: e.target.value }))
+                          setFormData((prev) => ({
+                            ...prev,
+                            vehicleSize: e.target.value,
+                          }))
                         }
                         className="bg-white text-black"
                       />
                     )}
 
+                    {/* Extra Services Dropdown */}
+                    <div>
+                      <Label htmlFor="extraService">Select Extra Service</Label>
+                      <Select
+                        value={formData.extraService || "none"}
+                        onValueChange={(val) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            extraService: val,
+                            packageType: "", // reset package when extra service changes
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select extra service" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
+                          <SelectItem value="windowtinting">Window Tinting</SelectItem>
+                          <SelectItem value="ceramiccoating">Ceramic Coating</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     {/* Service Packages */}
                     {formData.vehicleType && (
                       <div className="grid md:grid-cols-2 gap-4">
-                        {Object.entries(service[formData.vehicleType] || {}).map(
-                          ([serviceCategory, packagesOrService]) => {
+                        {Object.entries(
+                          formData.extraService && formData.extraService !== "none"
+                            ? extraServices[formData.extraService] || {}
+                            : service[formData.vehicleType] || {}
+                        ).map(([serviceCategory, packagesOrService]) => {
+                          const isExtra = formData.extraService && formData.extraService !== "none";
 
-                            // Car/SUV/Truck/Van/Bike packages (nested)
-                            if (["sedan", "suv", "truck", "van", "bike"].includes(formData.vehicleType)) {
-                              return Object.entries(packagesOrService as any).map(
-                                ([packageKey, pkg]) => {
-                                  const packageId = `${serviceCategory}-${packageKey}`;
-                                  const isSelected = formData.packageType === packageId;
-                                  const price = calculatePrice(
-                                    formData.vehicleType,
-                                    packageId,
-                                    serviceCategory,
-                                    Number(formData.vehicleSize)
-                                  );
+                          // Nested packages for cars, trucks, vans
+                          if (
+                            ["sedan", "suv", "truck", "van", "bike"].includes(formData.vehicleType) &&
+                            !isExtra
+                          ) {
+                            return Object.entries(packagesOrService as any).map(
+                              ([packageKey, pkg]) => {
+                                const packageId = `${serviceCategory}-${packageKey}`;
+                                const isSelected = formData.packageType === packageId;
+                                const price = calculatePrice(
+                                  formData.vehicleType,
+                                  packageId,
+                                  serviceCategory,
+                                  Number(formData.vehicleSize),
+                                  formData.extraService
+                                );
 
-                                  return (
-                                    <div
-                                      key={packageId}
-                                      className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""
-                                        }`}
-                                      onClick={() =>
-                                        setFormData((prev) => ({
-                                          ...prev,
-                                          serviceCategory,
-                                          packageType: packageId,
-                                        }))
-                                      }
-                                    >
-                                      <div className="flex justify-between font-medium">
-                                        <span>{(pkg as { name: string }).name}</span>
-                                        <span>${price}</span>
-                                      </div>
-
-                                      <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
-                                        {Array.isArray((pkg as { includes?: string[] | string }).includes)
-                                          ? (pkg as { includes?: string[] }).includes?.map(
-                                            (i: string, idx: number) => <li key={idx}>{i}</li>
-                                          )
-                                          : typeof (pkg as { includes?: string }).includes === "string"
-                                            ? (pkg as { includes?: string }).includes
-                                              ?.split(",")
-                                              .map((i: string, idx: number) => <li key={idx}>{i.trim()}</li>)
-                                            : null}
-                                      </ul>
-
-                                      {isSelected && (
-                                        <p className="text-sm text-green-600 flex items-center mt-2">
-                                          <Check size={14} className="mr-1" /> Selected
-                                        </p>
-                                      )}
+                                return (
+                                  <div
+                                    key={packageId}
+                                    className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""
+                                      }`}
+                                    onClick={() =>
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        serviceCategory,
+                                        packageType: packageId,
+                                      }))
+                                    }
+                                  >
+                                    <div className="flex justify-between font-medium">
+                                      <span>{(pkg as { name: string }).name}</span>
+                                      <span>${price}</span>
                                     </div>
-                                  );
 
-                                }
-                              );
-                            }
+                                    <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
+                                      {Array.isArray((pkg as { includes?: string[] | string }).includes)
+                                        ? (pkg as { includes?: string[] }).includes?.map(
+                                          (i: string, idx: number) => <li key={idx}>{i}</li>
+                                        )
+                                        : typeof (pkg as { includes?: string }).includes === "string"
+                                          ? (pkg as { includes?: string })
+                                            .includes?.split(",")
+                                            .map((i: string, idx: number) => <li key={idx}>{i.trim()}</li>)
+                                          : null}
+                                    </ul>
 
-                            // Other vehicles (boat, rv, jetski)
-                            const pkg = packagesOrService as any;
-                            const isSelected = formData.packageType === serviceCategory;
-                            const price = calculatePrice(
-                              formData.vehicleType,
-                              serviceCategory,
-                              serviceCategory,
-                              Number(formData.vehicleSize)
-                            );
-
-                            return (
-                              <div
-                                key={serviceCategory}
-                                className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""
-                                  }`}
-                                onClick={() =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    serviceCategory,
-                                    packageType: serviceCategory,
-                                  }))
-                                }
-                              >
-                                <div className="flex justify-between font-medium">
-                                  <span>{pkg.name}</span>
-                                  <span>${price}</span>
-                                </div>
-                                {pkg.includes && pkg.includes.length > 0 && (
-                                  <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
-                                    {pkg.includes.map((i: string, idx: number) => (
-                                      <li key={idx}>{i}</li>
-                                    ))}
-                                  </ul>
-                                )}
-                                {isSelected && (
-                                  <p className="text-sm text-green-600 flex items-center mt-2">
-                                    <Check size={14} className="mr-1" /> Selected
-                                  </p>
-                                )}
-                              </div>
+                                    {isSelected && (
+                                      <p className="text-sm text-green-600 flex items-center mt-2">
+                                        <Check size={14} className="mr-1" /> Selected
+                                      </p>
+                                    )}
+                                  </div>
+                                );
+                              }
                             );
                           }
-                        )}
+
+                          // Boats / RVs or Extra Services
+                          const pkg = packagesOrService as any;
+                          const packageId = serviceCategory; // for extra service, serviceCategory is the key
+                          const isSelected = formData.packageType === packageId;
+                          const price = calculatePrice(
+                            formData.vehicleType, // always pass vehicleType
+                            packageId,
+                            serviceCategory,
+                            Number(formData.vehicleSize),
+                            formData.extraService // pass extraService here
+                          );
+
+                          return (
+                            <div
+                              key={serviceCategory}
+                              className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""
+                                }`}
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  serviceCategory,
+                                  packageType: packageId,
+                                }))
+                              }
+                            >
+                              <div className="flex justify-between font-medium">
+                                <span>{pkg.name}</span>
+                                <span>${price}</span>
+                              </div>
+                              {pkg.includes && pkg.includes.length > 0 && (
+                                <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
+                                  {pkg.includes.map((i: string, idx: number) => (
+                                    <li key={idx}>{i}</li>
+                                  ))}
+                                </ul>
+                              )}
+                              {isSelected && (
+                                <p className="text-sm text-green-600 flex items-center mt-2">
+                                  <Check size={14} className="mr-1" /> Selected
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
 
@@ -499,8 +556,13 @@ const Booking = () => {
                     )}
 
                     {/* Navigation */}
-                    <div className="flex justify-between mt-6 0">
-                      <Button onClick={prevStep} className="bg-black text-white hover:bg-gray-600">Back</Button>
+                    <div className="flex justify-between mt-6">
+                      <Button
+                        onClick={prevStep}
+                        className="bg-black text-white hover:bg-gray-600"
+                      >
+                        Back
+                      </Button>
                       <Button
                         onClick={nextStep}
                         disabled={!formData.packageType}
@@ -511,6 +573,8 @@ const Booking = () => {
                     </div>
                   </motion.div>
                 )}
+
+
                 {/* STEP 3 - Customer Info */}
                 {step === 3 && (
                   <motion.div initial="hidden" animate="visible" variants={fadeIn} className="space-y-6">

@@ -82,7 +82,7 @@ const AboutSection = () => {
               variants={itemVariants}
               className="text-gray-700 mb-8 text-base md:text-lg"
             >
-              At Decent Detailers, we bring expertise, premium products, and certified techniques 
+              At Local Auto Spa, we bring expertise, premium products, and certified techniques 
               directly to your doorstep. Our fully mobile service means you get professional 
               results without the hassle.
             </motion.p>

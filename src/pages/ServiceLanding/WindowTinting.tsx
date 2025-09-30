@@ -7,43 +7,25 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-// ✅ Window Tinting Packages
+// ✅ Window Tinting Packages (Luxury Removed)
 const packages = [
   {
-    title: "Standard Tint Package",
-    price: "$199",
+    title: "Standard Window Tinting",
+    price: "$120",
     features: [
-      "Basic heat rejection (30%)",
-      "UV protection (99%)",
+      "Tint all windows with standard film",
+      "UV protection",
+      "3-year warranty",
+    ],
+    more: [],
+  },
+  {
+    title: "Premium Window Tinting",
+    price: "$180",
+    features: [
+      "Tint all windows with premium film",
+      "UV + Heat protection",
       "5-year warranty",
-      "2-4 hour installation",
-      "Good option for budget-conscious customers",
-    ],
-    more: [],
-  },
-  {
-    title: "Premium Tint Package",
-    price: "$299",
-    features: [
-      "Superior heat rejection (50%)",
-      "UV protection (99%)",
-      "Lifetime warranty",
-      "Better clarity and visibility",
-      "2-4 hour installation",
-      "Best value with balance of performance and price",
-    ],
-    more: [],
-  },
-  {
-    title: "Luxury Tint Package",
-    price: "$399",
-    features: [
-      "Maximum heat rejection (70%)",
-      "UV protection (99.9%)",
-      "Lifetime warranty",
-      "Infrared rejection technology",
-      "Scratch-resistant coating",
-      "Ultimate performance and luxury experience",
     ],
     more: [],
   },
@@ -70,11 +52,13 @@ const WindowTinting = () => {
               transition={{ duration: 0.5 }}
             >
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-6">
-                Professional <span className="text-gray-500">Window Tinting</span> Services
+                Professional{" "}
+                <span className="text-gray-500">Window Tinting</span> Services
               </h1>
               <p className="text-gray-700 text-lg mb-8">
-                Premium window film installation that enhances comfort, style, privacy
-                and protects your vehicle&apos;s interior from harmful UV rays.
+                Premium window film installation that enhances comfort, style,
+                privacy and protects your vehicle&apos;s interior from harmful
+                UV rays.
               </p>
               <div className="flex flex-wrap gap-4 mb-8">
                 <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm py-2 px-4 rounded-full shadow-sm">
@@ -128,13 +112,13 @@ const WindowTinting = () => {
             Window Tinting Packages
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Choose from our premium window tinting options with different levels of
-            heat rejection and UV protection
+            Choose from our premium window tinting options with different levels
+            of heat rejection and UV protection
           </p>
         </div>
 
         {/* Grid with toggle cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
           {packages.map((pkg, index) => {
             const isExpanded = expandedCard === index;
             const visibleFeatures = isExpanded
@@ -144,12 +128,16 @@ const WindowTinting = () => {
             return (
               <motion.div
                 key={index}
-                className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 relative flex flex-col justify-between"
+                className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 flex flex-col justify-between"
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
               >
                 <div>
-                  <h3 className="text-xl font-bold text-black mb-2">{pkg.title}</h3>
-                  <p className="text-3xl font-bold text-gray-900 mb-4">{pkg.price}</p>
+                  <h3 className="text-xl font-bold text-black mb-2">
+                    {pkg.title}
+                  </h3>
+                  <p className="text-3xl font-bold text-gray-900 mb-4">
+                    {pkg.price}
+                  </p>
                   <div className="space-y-3">
                     {visibleFeatures.map((feature, i) => (
                       <div key={i} className="flex items-start gap-2">
@@ -158,41 +146,33 @@ const WindowTinting = () => {
                       </div>
                     ))}
                   </div>
-
-                  {/* Extra details accordion */}
-                  {isExpanded && pkg.more.length > 0 && (
-                    <motion.div
-                      className="mt-4 space-y-2"
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {pkg.more.map((item, j) => (
-                        <div key={j} className="flex items-start gap-2">
-                          <Check size={18} className="text-gray-500 mt-1" />
-                          <span className="text-gray-600 text-sm">{item}</span>
-                        </div>
-                      ))}
-                    </motion.div>
-                  )}
                 </div>
 
-                {pkg.features.length > 3 && (
-                  <button
-                    onClick={() => toggleCard(index)}
-                    className="mt-6 flex items-center justify-center w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition"
-                  >
-                    {isExpanded ? (
-                      <>
-                        Show Less <ChevronUp className="ml-2 h-4 w-4" />
-                      </>
-                    ) : (
-                      <>
-                        Show More <ChevronDown className="ml-2 h-4 w-4" />
-                      </>
-                    )}
-                  </button>
-                )}
+                <div className="mt-6 flex flex-col gap-3">
+                  {pkg.features.length > 3 && (
+                    <button
+                      onClick={() => toggleCard(index)}
+                      className="flex items-center justify-center w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition"
+                    >
+                      {isExpanded ? (
+                        <>
+                          Show Less <ChevronUp className="ml-2 h-4 w-4" />
+                        </>
+                      ) : (
+                        <>
+                          Show More <ChevronDown className="ml-2 h-4 w-4" />
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  <Link href="/booking?service=window-tinting" className="w-full">
+                    <Button className="w-full bg-black hover:bg-gray-500 text-white">
+                      Book Now
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </motion.div>
             );
           })}

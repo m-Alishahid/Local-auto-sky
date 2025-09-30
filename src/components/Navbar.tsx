@@ -5,28 +5,36 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ChevronDown, Car, SprayCan, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    if (pathname === "/") {
+      const handleScroll = () => setIsScrolled(window.scrollY > 20);
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
+  }, [pathname]);
+
+  // ✅ Navbar background logic
+  let navbarBg = "shadow-md bg-gray-500/10"; // default home bg
+  if (pathname === "/") {
+    navbarBg = isScrolled ? "shadow-lg bg-black/90" : "shadow-md bg-gray-500/10";
+  } else {
+    navbarBg = "shadow-lg bg-black/90";
+  }
 
   return (
     <>
       {/* ✅ Navbar wrapper */}
       <nav
         className={`fixed top-3 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 
-        w-[92%] md:w-[85%] 
-        ${isScrolled ? "shadow-lg bg-black/90" : "shadow-md bg-gray-500/30"}
-        backdrop-blur-md  px-4 py-0.5`}
+        w-[92%] md:w-[85%] ${navbarBg} backdrop-blur-md px-4 py-0.5`}
       >
         <div className="flex justify-between items-center">
           {/* ✅ Logo */}

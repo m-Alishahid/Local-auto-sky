@@ -399,7 +399,56 @@ export const service: Record<string, VehicleService> = {
       includes: ["Full Interior + Full Exterior Packages"],
     },
   },
+
 };
+
+// ---------------- Extra Main Services ----------------
+// src/utils/services.ts
+
+export const extraServices: Record<string, Record<string, ServicePackage>> = {
+  windowtinting: {
+    standard: {
+      name: "Standard Window Tinting",
+      price: 120,
+      includes: [
+        "Tint all windows with standard film",
+        "UV protection",
+        "3-year warranty",
+      ],
+    },
+    premium: {
+      name: "Premium Window Tinting",
+      price: 180,
+      includes: [
+        "Tint all windows with premium film",
+        "UV + Heat protection",
+        "5-year warranty",
+      ],
+    },
+  },
+  ceramiccoating: {
+    basic: {
+      name: "Basic Ceramic Coating",
+      price: 200,
+      includes: [
+        "Hand wash & clay bar",
+        "Apply 1 layer ceramic coating",
+        "Protection for 1 year",
+      ],
+    },
+    advanced: {
+      name: "Advanced Ceramic Coating",
+      price: 350,
+      includes: [
+        "Hand wash & clay bar",
+        "Apply 2 layers ceramic coating",
+        "Protection for 3 years",
+      ],
+    },
+  },
+};
+
+
 
 // ---------------- Vehicle Types ----------------
 export const vehicleTypes = [
@@ -505,31 +554,48 @@ export const serviceTypes = [
 // ---------------- Price Calculation ----------------
 export const calculateTotalPrice = (formData: any) => {
   let total = 0;
-  const { vehicleType, packageType, vehicleSize, additionalServices: addons } = formData;
+  const { vehicleType, packageType, extraService, vehicleSize, additionalServices: addons } = formData;
 
-  if (!vehicleType || !packageType) return 0;
+  if (!vehicleType || (!packageType && (!extraService || extraService === "none"))) return 0;
 
-  // Cars, Trucks, Vans
-  if (["suv", "truck", "van", "sedan"].includes(vehicleType)) {
-    const [category, pkgKey] = packageType.split("-"); // e.g., "interior-basic"
-    const cat = category as keyof VehicleService;
-    const pkgObj = service[vehicleType]?.[cat];
-    const pkg = (pkgObj && typeof pkgObj === "object" && "name" in pkgObj === false)
-      ? (pkgObj as Record<string, ServicePackage>)[pkgKey]
-      : undefined;
-    if (pkg) total += pkg.price ?? 0;
-  }
+  // If extra service is selected
+  if (extraService && extraService !== "none") {
+    const extraPkg = extraServices[extraService]?.[packageType];
+    if (extraPkg) {
+      if (extraPkg.pricePerFt && vehicleSize) {
+        total += extraPkg.pricePerFt * Number(vehicleSize);
+      } else {
+        total += extraPkg.price ?? 0;
+      }
+    }
+  } else {
+    // Cars, Trucks, Vans (nested)
+    if (["suv", "truck", "van", "sedan"].includes(vehicleType)) {
+      if (packageType) {
+        const [category, pkgKey] = packageType.split("-"); // e.g., "interior-basic"
+        const pkgObj = service[vehicleType]?.[category] as Record<string, ServicePackage>;
+        const pkg = pkgObj?.[pkgKey];
+        if (pkg) total += pkg.price ?? 0;
+      }
+    }
 
-  // Boats / RVs (pricePerFt)
-  if (["boat", "rv"].includes(vehicleType)) {
-    const pkg = service[vehicleType]?.[packageType as keyof VehicleService];
-    if (pkg && vehicleSize) total += Number(pkg.pricePerFt ?? 0) * Number(vehicleSize);
-  }
+    // Boats / RVs
+    if (["boat", "rv"].includes(vehicleType)) {
+      const pkg = service[vehicleType]?.[packageType as keyof VehicleService] as ServicePackage;
+      if (pkg) {
+        if (pkg.pricePerFt && vehicleSize) {
+          total += pkg.pricePerFt * Number(vehicleSize);
+        } else {
+          total += pkg.price ?? 0;
+        }
+      }
+    }
 
-  // Jetski / Bike
-  if (["jetski", "bike"].includes(vehicleType)) {
-    const pkg = service[vehicleType]?.[packageType];
-    if (pkg) total += pkg.price ?? 0;
+    // Jetski / Bike (flat)
+    if (["jetski", "bike"].includes(vehicleType)) {
+      const pkg = service[vehicleType]?.[packageType] as ServicePackage;
+      if (pkg) total += pkg.price ?? 0;
+    }
   }
 
   // Add-ons
@@ -542,32 +608,44 @@ export const calculateTotalPrice = (formData: any) => {
 
   return total;
 };
-// utils/calculatePrice.ts
 
+
+// ---------------- Single Package Price ----------------
 export const calculatePrice = (
   vehicleType: string,
-  packageId: string,        // e.g., "interior-basic"
-  serviceCategory: string,  // e.g., "interior"
-  vehicleSize?: number
-) => {
+  packageId: string,
+  serviceCategory: string,
+  vehicleSize?: number,
+  extraService?: string
+): number => {
+  // Extra Services (WT / CC)
+  if (extraService && extraService !== "none") {
+    const pkg = extraServices[extraService]?.[packageId];
+    if (!pkg) return 0;
+    return pkg.pricePerFt && vehicleSize ? pkg.pricePerFt * vehicleSize : pkg.price || 0;
+  }
+
+  // Boats / RVs
   if (["boat", "rv"].includes(vehicleType)) {
-    const pricePerFt = service[vehicleType]?.[serviceCategory]?.pricePerFt || 0;
-    return pricePerFt * (vehicleSize || 0);
+    const pkg = service[vehicleType]?.[serviceCategory] as ServicePackage;
+    if (!pkg) return 0;
+    return pkg.pricePerFt && vehicleSize ? pkg.pricePerFt * vehicleSize : pkg.price || 0;
   }
 
+  // Cars/SUV/Truck/Van/Bike
   if (["sedan", "suv", "truck", "van", "bike"].includes(vehicleType)) {
-    const [, packageKey] = packageId.split("-"); // "interior-basic" => ["interior", "basic"]
-    return service[vehicleType]?.[serviceCategory]?.[packageKey]?.price || 0;
+    if (!packageId.includes("-")) return 0;
+    const [, packageKey] = packageId.split("-"); // e.g., "interior-basic"
+    const pkgObj = service[vehicleType]?.[serviceCategory] as Record<string, ServicePackage>;
+    const pkg = pkgObj?.[packageKey];
+    return pkg?.price || 0;
   }
 
-  if (["jetski"].includes(vehicleType)) {
-    return service[vehicleType]?.[serviceCategory]?.price || 0;
+  // Jetski
+  if (vehicleType === "jetski") {
+    const pkg = service[vehicleType]?.[serviceCategory] as ServicePackage;
+    return pkg?.price || 0;
   }
-
-
-
 
   return 0;
-
-
 };

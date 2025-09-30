@@ -9,38 +9,22 @@ import Image from "next/image";
 
 const packages = [
   {
-    title: "Basic Ceramic",
-    price: "$599",
+    title: "Basic Ceramic Coating",
+    price: "$200",
     features: [
-      "1-year protection",
-      "Basic paint correction",
-      "Hydrophobic properties",
-      "Enhanced gloss finish",
+      "Hand wash & clay bar",
+      "Apply 1 layer ceramic coating",
+      "Protection for 1 year",
     ],
     more: [],
   },
   {
-    title: "Premium Ceramic",
-    price: "$999",
+    title: "Advanced Ceramic Coating",
+    price: "$350",
     features: [
-      "3-year protection",
-      "2-step paint correction",
-      "Superior hydrophobic effect",
-      "Superior gloss finish",
-      "Chemical resistance",
-    ],
-    more: [],
-  },
-  {
-    title: "Luxury Ceramic",
-    price: "$1499",
-    features: [
-      "5-year protection",
-      "3-step paint correction",
-      "Ultimate hydrophobic effect",
-      "Maximum gloss finish",
-      "Enhanced scratch resistance",
-      "UV protection",
+      "Hand wash & clay bar",
+      "Apply 2 layers ceramic coating",
+      "Protection for 3 years",
     ],
     more: [],
   },
@@ -135,7 +119,7 @@ const CeramicCoating = () => {
         </div>
 
         {/* Grid with toggle cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
           {packages.map((pkg, index) => {
             const isExpanded = expandedCard === index;
             const visibleFeatures = isExpanded
@@ -145,7 +129,7 @@ const CeramicCoating = () => {
             return (
               <motion.div
                 key={index}
-                className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 relative flex flex-col justify-between"
+                className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 flex flex-col justify-between"
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
               >
                 <div>
@@ -159,41 +143,33 @@ const CeramicCoating = () => {
                       </div>
                     ))}
                   </div>
-
-                  {/* Extra details accordion */}
-                  {isExpanded && pkg.more.length > 0 && (
-                    <motion.div
-                      className="mt-4 space-y-2"
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {pkg.more.map((item, j) => (
-                        <div key={j} className="flex items-start gap-2">
-                          <Check size={18} className="text-gray-500 mt-1" />
-                          <span className="text-gray-600 text-sm">{item}</span>
-                        </div>
-                      ))}
-                    </motion.div>
-                  )}
                 </div>
 
-                {pkg.features.length > 3 && (
-                  <button
-                    onClick={() => toggleCard(index)}
-                    className="mt-6 flex items-center justify-center w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition"
-                  >
-                    {isExpanded ? (
-                      <>
-                        Show Less <ChevronUp className="ml-2 h-4 w-4" />
-                      </>
-                    ) : (
-                      <>
-                        Show More <ChevronDown className="ml-2 h-4 w-4" />
-                      </>
-                    )}
-                  </button>
-                )}
+                <div className="mt-6 flex flex-col gap-3">
+                  {pkg.features.length > 3 && (
+                    <button
+                      onClick={() => toggleCard(index)}
+                      className="flex items-center justify-center w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition"
+                    >
+                      {isExpanded ? (
+                        <>
+                          Show Less <ChevronUp className="ml-2 h-4 w-4" />
+                        </>
+                      ) : (
+                        <>
+                          Show More <ChevronDown className="ml-2 h-4 w-4" />
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  <Link href="/booking" className="w-full">
+                    <Button className="w-full bg-black hover:bg-gray-500 text-white">
+                      Book Now
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </motion.div>
             );
           })}
