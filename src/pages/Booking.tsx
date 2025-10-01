@@ -25,7 +25,8 @@ import {
   timeSlots,
   cityStateMap,
   vehicleTypes,
-  calculatePrice as baseCalculatePrice, extraServices,
+  calculatePrice as baseCalculatePrice,
+  extraServices,
 } from "@/utils/services";
 import {
   Popover,
@@ -44,8 +45,6 @@ import {
 } from "@/components/ui/dialog";
 import OrderSummaryAccordion from "@/components/OrderSummary";
 
-
-
 // ✅ Safe wrapper for calculatePrice
 const calculatePrice = (
   vehicleType: string,
@@ -59,7 +58,7 @@ const calculatePrice = (
     packageId,
     serviceCategory,
     vehicleSize || 0,
-    extraService // <-- 5th argument add kiya
+    extraService
   );
   if (!price || isNaN(price)) {
     console.warn("Price not found → defaulting 0", { vehicleType, packageId, serviceCategory, vehicleSize, extraService });
@@ -67,7 +66,6 @@ const calculatePrice = (
   }
   return price;
 };
-
 
 // ---------------- CONFIRMATION MODAL ----------------
 const ConfirmationModal = ({ open, onClose, formData, total }: any) => {
@@ -123,30 +121,32 @@ const Booking = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<{
-    selectedServices: { serviceType: string; package: string }[],
-    additionalServices: string[],
-    vehicleType: string,
-    vehicleMake: string,
-    vehicleModel: string,
-    vehicleYear: string,
-    vehicleColor: string,
-    vehicleWidth: string,
-    vehicleLength: string,
-    firstName: string,
-    lastName: string,
-    email: string,
-    phone: string,
-    address: string,
-    city: string,
-    state: string,
-    zip: string,
-    date: string,
-    timeSlot: string,
-    notes: string,
-    packageType: string,
-    serviceCategory: string,
-    vehicleSize: string,
-    extraService: string,
+    selectedServices: { serviceType: string; package: string }[];
+    additionalServices: string[];
+    vehicleType: string;
+    vehicleMake: string;
+    vehicleModel: string;
+    vehicleYear: string;
+    vehicleColor: string;
+    vehicleWidth: string;
+    vehicleLength: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+    date: string;
+    timeSlot: string;
+    notes: string;
+    packageType: string;
+    serviceCategory: string;
+    vehicleSize: string;
+    extraService: string[];
+    windowtintingPackageType: string;
+    ceramiccoatingPackageType: string;
   }>({
     selectedServices: [],
     additionalServices: [],
@@ -171,7 +171,9 @@ const Booking = () => {
     packageType: "",
     serviceCategory: "",
     vehicleSize: "",
-    extraService: "",
+    extraService: [],
+    windowtintingPackageType: "standard",
+    ceramiccoatingPackageType: "basic",
   });
 
   const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,11 +219,11 @@ const Booking = () => {
     return match ? Number(match[0]) : 0;
   };
 
-  // ------------------- Booking.tsx -------------------
+  // Calculate total price
   const calculateTotalPrice = () => {
     let total = 0;
 
-    // Selected package
+    // Main package
     if (formData.packageType) {
       total += calculatePrice(
         formData.vehicleType,
@@ -231,7 +233,22 @@ const Booking = () => {
       );
     }
 
-    // Additional services
+    // Extra services
+    formData.extraService.forEach((extraService) => {
+      const pkgType =
+        extraService === "windowtinting"
+          ? formData.windowtintingPackageType || "standard"
+          : formData.ceramiccoatingPackageType || "basic";
+      total += calculatePrice(
+        formData.vehicleType,
+        pkgType,
+        extraService,
+        Number(formData.vehicleSize),
+        extraService
+      );
+    });
+
+    // Add-ons
     formData.additionalServices.forEach((id: string) => {
       const add = additionalServices.find((a) => a.id === id);
       if (add) total += add.price;
@@ -330,10 +347,6 @@ const Booking = () => {
             </div>
           </div>
 
-
-
-
-
           <Card className="border-0 shadow-xl bg-white">
             <CardContent className="p-8">
               <form onSubmit={handleSubmit}>
@@ -371,7 +384,11 @@ const Booking = () => {
                       </div>
                     )}
 
-                    <div className="flex justify-end"><Button onClick={nextStep} className="bg-black text-white hover:bg-gray-600"    >Next</Button></div>
+                    <div className="flex justify-end">
+                      <Button onClick={nextStep} className="bg-black text-white hover:bg-gray-600">
+                        Next
+                      </Button>
+                    </div>
                   </motion.div>
                 )}
 
@@ -409,166 +426,203 @@ const Booking = () => {
                       />
                     )}
 
-                    {/* Extra Services Dropdown */}
+                    {/* Extra Services Checkboxes */}
                     <div>
-                      <Label htmlFor="extraService">Select Extra Service</Label>
-                      <Select
-                        value={formData.extraService || "none"}
-                        onValueChange={(val) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            extraService: val,
-                            packageType: "", // reset package when extra service changes
-                          }))
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select extra service" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">Detailing</SelectItem>
-                          <SelectItem value="windowtinting">Window Tinting</SelectItem>
-                          <SelectItem value="ceramiccoating">Ceramic Coating</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Label>Select Extra Services</Label>
+                      <div className="flex flex-col gap-2 mt-2">
+                        <label className="flex items-center gap-2">
+                          <Checkbox
+                            checked={formData.extraService.includes("windowtinting")}
+                            onCheckedChange={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                extraService: prev.extraService.includes("windowtinting")
+                                  ? prev.extraService.filter((s) => s !== "windowtinting")
+                                  : [...prev.extraService, "windowtinting"],
+                              }));
+                            }}
+                          />
+                          Window Tinting
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <Checkbox
+                            checked={formData.extraService.includes("ceramiccoating")}
+                            onCheckedChange={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                extraService: prev.extraService.includes("ceramiccoating")
+                                  ? prev.extraService.filter((s) => s !== "ceramiccoating")
+                                  : [...prev.extraService, "ceramiccoating"],
+                              }));
+                            }}
+                          />
+                          Ceramic Coating
+                        </label>
+                      </div>
                     </div>
 
-                    {/* Service Packages */}
+                    {/* Window Tinting Package Select */}
+                    {formData.extraService.includes("windowtinting") && (
+                      <div className="mt-2">
+                        <Label>Window Tinting Package</Label>
+                        <div className="grid md:grid-cols-2 gap-4 mt-2">
+                          {Object.entries(extraServices.windowtinting || {}).map(([packageKey, pkg]) => {
+                            const packageData = pkg as { name: string; price: string | number; includes?: string[] };
+                            const price = calculatePrice(
+                              formData.vehicleType,
+                              packageKey,
+                              "windowtinting",
+                              Number(formData.vehicleSize),
+                              "windowtinting"
+                            );
+                            const isSelected = formData.windowtintingPackageType === packageKey;
+
+                            return (
+                              <div
+                                key={packageKey}
+                                className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""
+                                  }`}
+                                onClick={() =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    windowtintingPackageType: packageKey
+                                  }))
+                                }
+                              >
+                                <div className="flex justify-between items-center font-medium">
+                                  <span>{packageData.name}</span>
+                                  <span className="text-green-600 font-bold">${price}</span>
+                                </div>
+
+                                {packageData.includes && packageData.includes.length > 0 && (
+                                  <ul className="text-sm mt-2 list-disc pl-4 space-y-1 text-gray-600">
+                                    {packageData.includes.map((item: string, idx: number) => (
+                                      <li key={idx}>{item}</li>
+                                    ))}
+                                  </ul>
+                                )}
+
+                                {isSelected && (
+                                  <p className="text-sm text-green-600 flex items-center mt-2">
+                                    <Check size={14} className="mr-1" /> Selected
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Ceramic Coating Package Select */}
+                    {formData.extraService.includes("ceramiccoating") && (
+                      <div className="mt-2">
+                        <Label>Ceramic Coating Package</Label>
+                        <div className="grid md:grid-cols-2 gap-4 mt-2">
+                          {Object.entries(extraServices.ceramiccoating || {}).map(([packageKey, pkg]) => {
+                            const packageData = pkg as { name: string; price: string | number; includes?: string[] };
+                            const price = calculatePrice(
+                              formData.vehicleType,
+                              packageKey,
+                              "ceramiccoating",
+                              Number(formData.vehicleSize),
+                              "ceramiccoating"
+                            );
+                            const isSelected = formData.ceramiccoatingPackageType === packageKey;
+
+                            return (
+                              <div
+                                key={packageKey}
+                                className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""
+                                  }`}
+                                onClick={() =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    ceramiccoatingPackageType: packageKey
+                                  }))
+                                }
+                              >
+                                <div className="flex justify-between items-center font-medium">
+                                  <span>{packageData.name}</span>
+                                  <span className="text-green-600 font-bold">${price}</span>
+                                </div>
+
+                                {packageData.includes && packageData.includes.length > 0 && (
+                                  <ul className="text-sm mt-2 list-disc pl-4 space-y-1 text-gray-600">
+                                    {packageData.includes.map((item: string, idx: number) => (
+                                      <li key={idx}>{item}</li>
+                                    ))}
+                                  </ul>
+                                )}
+
+                                {isSelected && (
+                                  <p className="text-sm text-green-600 flex items-center mt-2">
+                                    <Check size={14} className="mr-1" /> Selected
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Service Packages (Normal Detailing) */}
+                    {/* Service Packages (Normal Detailing) */}
                     {formData.vehicleType && (
                       <div className="grid md:grid-cols-2 gap-4">
-                        {Object.entries(
-                          formData.extraService && formData.extraService !== "none"
-                            ? extraServices[formData.extraService] || {}
-                            : service[formData.vehicleType] || {}
-                        ).map(([serviceCategory, packagesOrService]) => {
-                          const isExtra = formData.extraService && formData.extraService !== "none";
+                        {Object.entries(service[formData.vehicleType] || {}).map(([serviceCategory, packagesOrService]) => {
+                          return Object.entries(packagesOrService as any).map(
+                            ([packageKey, pkg]) => {
+                              const packageId = `${serviceCategory}-${packageKey}`;
+                              const isSelected = formData.packageType === packageId;
+                              const price = calculatePrice(
+                                formData.vehicleType,
+                                packageId,
+                                serviceCategory,
+                                Number(formData.vehicleSize)
+                              );
 
-                          // Nested packages for cars, trucks, vans
-                          if (
-                            ["sedan", "suv", "truck", "van", "bike"].includes(formData.vehicleType) &&
-                            !isExtra
-                          ) {
-                            return Object.entries(packagesOrService as any).map(
-                              ([packageKey, pkg]) => {
-                                const packageId = `${serviceCategory}-${packageKey}`;
-                                const isSelected = formData.packageType === packageId;
-                                const price = calculatePrice(
-                                  formData.vehicleType,
-                                  packageId,
-                                  serviceCategory,
-                                  Number(formData.vehicleSize),
-                                  formData.extraService
-                                );
-
-                                return (
-                                  <div
-                                    key={packageId}
-                                    className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""
-                                      }`}
-                                    onClick={() =>
-                                      setFormData((prev) => ({
-                                        ...prev,
-                                        serviceCategory,
-                                        packageType: packageId,
-                                      }))
-                                    }
-                                  >
-                                    <div className="flex justify-between font-medium">
-                                      <span>{(pkg as { name: string }).name}</span>
-                                      <span>${price}</span>
-                                    </div>
-
-                                    <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
-                                      {Array.isArray((pkg as { includes?: string[] | string }).includes)
-                                        ? (pkg as { includes?: string[] }).includes?.map(
-                                          (i: string, idx: number) => <li key={idx}>{i}</li>
-                                        )
-                                        : typeof (pkg as { includes?: string }).includes === "string"
-                                          ? (pkg as { includes?: string })
-                                            .includes?.split(",")
-                                            .map((i: string, idx: number) => <li key={idx}>{i.trim()}</li>)
-                                          : null}
-                                    </ul>
-
-                                    {isSelected && (
-                                      <p className="text-sm text-green-600 flex items-center mt-2">
-                                        <Check size={14} className="mr-1" /> Selected
-                                      </p>
-                                    )}
+                              return (
+                                <div
+                                  key={packageId}
+                                  className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""}`}
+                                  onClick={() =>
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      serviceCategory,
+                                      packageType: packageId,
+                                    }))
+                                  }
+                                >
+                                  <div className="flex justify-between font-medium">
+                                    <span>{(pkg as { name: string }).name}</span>
+                                    <span>${price}</span>
                                   </div>
-                                );
-                              }
-                            );
-                          }
-
-                          // Boats / RVs or Extra Services
-                          // ...existing code...
-
-                          // ...inside STEP 2, replace the "Boats / RVs or Extra Services" block with this:
-                          const pkg = packagesOrService as any;
-
-                          let packageId = serviceCategory;
-                          let serviceCat = serviceCategory;
-
-                          // For extra services, adjust packageId and serviceCategory for correct pricing
-                          if (formData.extraService && formData.extraService !== "none") {
-                            // serviceCategory is the package key (e.g., "standard", "premium", "basic", "advanced")
-                            // formData.extraService is "windowtinting" or "ceramiccoating"
-                            packageId = serviceCategory; // e.g., "standard"
-                            serviceCat = formData.extraService; // e.g., "windowtinting"
-                          }
-
-                          const isSelected = formData.packageType === packageId;
-                          const price = formData.extraService && formData.extraService !== "none"
-                            ? calculatePrice(
-                              formData.vehicleType,
-                              packageId,         // e.g. "standard"
-                              serviceCat,        // e.g. "windowtinting"
-                              Number(formData.vehicleSize),
-                              formData.extraService // <-- yeh 5th argument zaroor dena hai!
-                            )
-                            : calculatePrice(
-                              formData.vehicleType,
-                              packageId,
-                              serviceCategory,
-                              Number(formData.vehicleSize)
-                            );
-
-                          return (
-                            <div
-                              key={serviceCategory}
-                              className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""}`}
-                              onClick={() =>
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  serviceCategory: serviceCat,
-                                  packageType: packageId,
-                                }))
-                              }
-                            >
-                              <div className="flex justify-between font-medium">
-                                <span>{pkg.name}</span>
-                                <span>${price}</span>
-                              </div>
-                              {pkg.includes && pkg.includes.length > 0 && (
-                                <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
-                                  {pkg.includes.map((i: string, idx: number) => (
-                                    <li key={idx}>{i}</li>
-                                  ))}
-                                </ul>
-                              )}
-                              {isSelected && (
-                                <p className="text-sm text-green-600 flex items-center mt-2">
-                                  <Check size={14} className="mr-1" /> Selected
-                                </p>
-                              )}
-                            </div>
+                                  <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
+                                    {Array.isArray((pkg as { includes?: string[] | string }).includes)
+                                      ? (pkg as { includes?: string[] }).includes?.map(
+                                        (i: string, idx: number) => <li key={idx}>{i}</li>
+                                      )
+                                      : typeof (pkg as { includes?: string }).includes === "string"
+                                        ? (pkg as { includes?: string })
+                                          .includes?.split(",")
+                                          .map((i: string, idx: number) => <li key={idx}>{i.trim()}</li>)
+                                        : null}
+                                  </ul>
+                                  {isSelected && (
+                                    <p className="text-sm text-green-600 flex items-center mt-2">
+                                      <Check size={14} className="mr-1" /> Selected
+                                    </p>
+                                  )}
+                                </div>
+                              );
+                            }
                           );
-                          // ...existing code...
-
                         })}
                       </div>
                     )}
+
 
                     {/* Add-ons */}
                     {formData.packageType && (
@@ -610,7 +664,6 @@ const Booking = () => {
                   </motion.div>
                 )}
 
-
                 {/* STEP 3 - Customer Info */}
                 {step === 3 && (
                   <motion.div initial="hidden" animate="visible" variants={fadeIn} className="space-y-6">
@@ -643,7 +696,7 @@ const Booking = () => {
                           setFormData((prev) => ({
                             ...prev,
                             city,
-                            state: cityStateMap[city] || "" // auto-fill if exists
+                            state: cityStateMap[city] || ""
                           }));
                         }}
                         placeholder="City *"
@@ -660,7 +713,7 @@ const Booking = () => {
                         }
                         placeholder="State *"
                         className="bg-white text-black"
-                        readOnly={!!formData.city && !!cityStateMap[formData.city]} // lock if city matches
+                        readOnly={!!formData.city && !!cityStateMap[formData.city]}
                       />
 
                       {/* Zip */}
@@ -761,7 +814,6 @@ const Booking = () => {
                       )}
                     </div>
 
-
                     {/* Order Summary */}
                     <OrderSummaryAccordion
                       formData={formData}
@@ -792,7 +844,7 @@ const Booking = () => {
         open={showConfirmation}
         onClose={() => {
           setShowConfirmation(false);
-          router.push("/"); // redirect after close
+          router.push("/");
         }}
         formData={formData}
         total={discountedPrice}

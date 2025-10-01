@@ -48,13 +48,12 @@ const OrderSummaryAccordion: FC<OrderSummaryProps> = ({
               <div>
                 <h3 className="font-medium mb-2">Selected Services</h3>
                 <div className="space-y-2">
-                  {formData.packageType ? (
+                  {/* Main package */}
+                  {formData.packageType && (
                     <div className="flex justify-between p-2 border rounded">
                       <span>
                         {formData.serviceCategory
-                          ? service[formData.vehicleType][
-                              formData.serviceCategory
-                            ]?.name || formData.packageType
+                          ? service[formData.vehicleType][formData.serviceCategory]?.name || formData.packageType
                           : formData.packageType}
                       </span>
                       <span>
@@ -67,9 +66,33 @@ const OrderSummaryAccordion: FC<OrderSummaryProps> = ({
                         )}
                       </span>
                     </div>
-                  ) : (
-                    <p className="text-sm text-gray-500">No package selected</p>
                   )}
+
+                  {/* Extra services */}
+                  {formData.extraService?.map((extraService: string) => {
+                    const pkgType =
+                      extraService === "windowtinting"
+                        ? formData.windowtintingPackageType || "standard"
+                        : formData.ceramiccoatingPackageType || "basic";
+                    return (
+                      <div key={extraService} className="flex justify-between p-2 border rounded">
+                        <span>
+                          {extraService === "windowtinting" ? "Window Tinting" : "Ceramic Coating"} (
+                          {pkgType.charAt(0).toUpperCase() + pkgType.slice(1)})
+                        </span>
+                        <span>
+                          $
+                          {calculatePrice(
+                            formData.vehicleType,
+                            pkgType,
+                            extraService,
+                            Number(formData.vehicleSize),
+                            extraService
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
