@@ -1,68 +1,59 @@
 import Navbar from "@/components/Navbar";
 import { Wrench, Car, Check, Users, Award, Clock } from "lucide-react";
-import Image from "next/image";
+import { motion } from "framer-motion";
 
 const About = () => {
   return (
-    <div className="min-h-screen bg-black text-gray-200">
+    <div className="min-h-screen bg-white text-gray-900">
       <Navbar />
 
       {/* Hero Section */}
-      <div className="pt-32 pb-20 bg-gradient-to-b from-gray-900 to-black">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
-<br /> <br />
-
+      <section className="pt-32 pb-20 bg-gradient-to-b from-gray-100 to-white text-center relative overflow-hidden">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-black mb-6">
             About Local Auto Spa
           </h1>
-          <div className="w-20 h-1 bg-gray-500 mx-auto mb-6 rounded-full"></div>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+
+          {/* Animated underline */}
+          <div className="w-24 h-1 bg-gray-300 mx-auto mb-6 relative overflow-hidden rounded-full">
+            <motion.div
+              className="absolute top-0 left-0 w-6 h-1 bg-gray-800"
+              animate={{ x: [0, 90, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity }}
+            />
+          </div>
+
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Premium car care and detailing, redefined with precision and passion.
           </p>
         </div>
-      </div>
+      </section>
 
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-6 py-20">
         {/* Our Story */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
-          <div>
-            <h2 className="text-3xl font-bold text-white mb-6">Our Story</h2>
-            <p className="text-gray-400 leading-relaxed mb-5">
-              Local Auto Spa began with a mission to deliver high-end car care
-              in a modern, convenient, and professional way. What started as a
-              passion has evolved into a trusted brand that blends innovation,
-              precision, and luxury.
-            </p>
-            <p className="text-gray-400 leading-relaxed mb-5">
-              We specialize in detailing, protection, and restoration services
-              that ensure your car doesn’t just look good — it feels brand new.
-              Every service is tailored to give your vehicle the attention it
-              deserves.
-            </p>
-            <p className="text-gray-400 leading-relaxed">
-              With a focus on excellence and customer satisfaction, Local Auto
-              Spa is the choice for car enthusiasts and everyday drivers alike.
-            </p>
-          </div>
-
-          <div className="relative">
-            <div className="rounded-xl overflow-hidden shadow-2xl border border-gray-700">
-              <Image
-                src="/about_us.jpg"
-                alt="Luxury car care at Local Auto Spa"
-                width={700}
-                height={420}
-                className="w-full h-[420px] object-cover grayscale hover:grayscale-0 transition-all duration-500"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-            </div>
-          </div>
+        <div className="max-w-4xl mx-auto mb-24 text-center">
+          <h2 className="text-3xl font-bold text-black mb-6">Our Story</h2>
+          <p className="text-gray-700 leading-relaxed mb-5">
+            Local Auto Spa began with a mission to deliver high-end car care
+            in a modern, convenient, and professional way. What started as a
+            passion has evolved into a trusted brand that blends innovation,
+            precision, and luxury.
+          </p>
+          <p className="text-gray-700 leading-relaxed mb-5">
+            We specialize in detailing, protection, and restoration services
+            that ensure your car doesn’t just look good — it feels brand new.
+            Every service is tailored to give your vehicle the attention it
+            deserves.
+          </p>
+          <p className="text-gray-700 leading-relaxed">
+            With a focus on excellence and customer satisfaction, Local Auto
+            Spa is the choice for car enthusiasts and everyday drivers alike.
+          </p>
         </div>
 
         {/* Why Choose Us */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-bold text-white mb-10 text-center">
+        <section className="mb-24">
+          <h2 className="text-3xl font-bold text-black mb-12 text-center">
             Why Choose Us
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -100,31 +91,31 @@ const About = () => {
             ].map((item, i) => (
               <div
                 key={i}
-                className="bg-gray-900 border border-gray-700 p-6 rounded-xl shadow-md hover:shadow-xl hover:border-gray-500 transition-all flex flex-col items-start h-full"
+                className="bg-gray-50 border border-gray-200 p-8 rounded-2xl shadow-sm hover:shadow-md hover:border-gray-400 transition-all flex flex-col items-start"
               >
-                <div className="bg-gray-800 p-3 rounded-full mb-4 text-white">
+                <div className="bg-gray-100 p-3 rounded-lg mb-5 text-gray-800">
                   {item.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-3">
+                <h3 className="text-xl font-semibold text-black mb-3">
                   {item.title}
                 </h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
+                <p className="text-gray-600 text-sm leading-relaxed">
                   {item.desc}
                 </p>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
         {/* Mission */}
-        <div className="bg-gray-900 border border-gray-700 p-10 rounded-2xl shadow-xl text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">Our Mission</h2>
-          <p className="text-lg text-gray-400 italic max-w-3xl mx-auto leading-relaxed">
+        <section className="bg-gray-100 text-center p-12 rounded-2xl shadow-md">
+          <h2 className="text-3xl font-bold mb-6 text-black">Our Mission</h2>
+          <p className="text-lg text-gray-700 italic max-w-3xl mx-auto leading-relaxed">
             "At Local Auto Spa, our mission is to elevate the car care
             experience by blending precision, innovation, and premium quality —
             ensuring every drive feels like the first."
           </p>
-        </div>
+        </section>
       </div>
     </div>
   );

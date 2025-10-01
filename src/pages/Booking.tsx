@@ -44,16 +44,30 @@ import {
 } from "@/components/ui/dialog";
 import OrderSummaryAccordion from "@/components/OrderSummary";
 
+
+
 // ✅ Safe wrapper for calculatePrice
 const calculatePrice = (
-  vehicleType: string, packageId: string, serviceCategory: string, vehicleSize?: number, extraService?: string) => {
-  const price = baseCalculatePrice(vehicleType, packageId, serviceCategory, vehicleSize || 0);
+  vehicleType: string,
+  packageId: string,
+  serviceCategory: string,
+  vehicleSize?: number,
+  extraService?: string
+) => {
+  const price = baseCalculatePrice(
+    vehicleType,
+    packageId,
+    serviceCategory,
+    vehicleSize || 0,
+    extraService // <-- 5th argument add kiya
+  );
   if (!price || isNaN(price)) {
-    console.warn("Price not found → defaulting 0", { vehicleType, packageId, serviceCategory, vehicleSize });
+    console.warn("Price not found → defaulting 0", { vehicleType, packageId, serviceCategory, vehicleSize, extraService });
     return 0;
   }
   return price;
 };
+
 
 // ---------------- CONFIRMATION MODAL ----------------
 const ConfirmationModal = ({ open, onClose, formData, total }: any) => {
@@ -412,7 +426,7 @@ const Booking = () => {
                           <SelectValue placeholder="Select extra service" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
+                          <SelectItem value="none">Detailing</SelectItem>
                           <SelectItem value="windowtinting">Window Tinting</SelectItem>
                           <SelectItem value="ceramiccoating">Ceramic Coating</SelectItem>
                         </SelectContent>
@@ -488,26 +502,46 @@ const Booking = () => {
                           }
 
                           // Boats / RVs or Extra Services
+                          // ...existing code...
+
+                          // ...inside STEP 2, replace the "Boats / RVs or Extra Services" block with this:
                           const pkg = packagesOrService as any;
-                          const packageId = serviceCategory; // for extra service, serviceCategory is the key
+
+                          let packageId = serviceCategory;
+                          let serviceCat = serviceCategory;
+
+                          // For extra services, adjust packageId and serviceCategory for correct pricing
+                          if (formData.extraService && formData.extraService !== "none") {
+                            // serviceCategory is the package key (e.g., "standard", "premium", "basic", "advanced")
+                            // formData.extraService is "windowtinting" or "ceramiccoating"
+                            packageId = serviceCategory; // e.g., "standard"
+                            serviceCat = formData.extraService; // e.g., "windowtinting"
+                          }
+
                           const isSelected = formData.packageType === packageId;
-                          const price = calculatePrice(
-                            formData.vehicleType, // always pass vehicleType
-                            packageId,
-                            serviceCategory,
-                            Number(formData.vehicleSize),
-                            formData.extraService // pass extraService here
-                          );
+                          const price = formData.extraService && formData.extraService !== "none"
+                            ? calculatePrice(
+                              formData.vehicleType,
+                              packageId,         // e.g. "standard"
+                              serviceCat,        // e.g. "windowtinting"
+                              Number(formData.vehicleSize),
+                              formData.extraService // <-- yeh 5th argument zaroor dena hai!
+                            )
+                            : calculatePrice(
+                              formData.vehicleType,
+                              packageId,
+                              serviceCategory,
+                              Number(formData.vehicleSize)
+                            );
 
                           return (
                             <div
                               key={serviceCategory}
-                              className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""
-                                }`}
+                              className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""}`}
                               onClick={() =>
                                 setFormData((prev) => ({
                                   ...prev,
-                                  serviceCategory,
+                                  serviceCategory: serviceCat,
                                   packageType: packageId,
                                 }))
                               }
@@ -530,6 +564,8 @@ const Booking = () => {
                               )}
                             </div>
                           );
+                          // ...existing code...
+
                         })}
                       </div>
                     )}
