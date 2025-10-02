@@ -399,56 +399,114 @@ export const service: Record<string, VehicleService> = {
       includes: ["Full Interior + Full Exterior Packages"],
     },
   },
-
 };
 
 // ---------------- Extra Main Services ----------------
-// src/utils/services.ts
-
 export const extraServices: Record<string, Record<string, ServicePackage>> = {
   windowtinting: {
-    standard: {
-      name: "Standard Window Tinting",
-      price: 120,
+    centurionsides: {
+      name: "Centurion Tint - Sides each window",
+      price: 69,
       includes: [
-        "Tint all windows with standard film",
-        "UV protection",
-        "3-year warranty",
+        "Tint for sides each window",
       ],
     },
-    premium: {
-      name: "Premium Window Tinting",
-      price: 180,
+    centurionrear: {
+      name: "Centurion Tint - Rear windshield",
+      price: 99,
       includes: [
-        "Tint all windows with premium film",
-        "UV + Heat protection",
-        "5-year warranty",
+        "Tint for rear windshield",
+      ],
+    },
+    centurionfront: {
+      name: "Centurion Tint - Front windshield",
+      price: 155,
+      includes: [
+        "Tint for front windshield",
+      ],
+    },
+    centurionbrow: {
+      name: "Centurion Tint - Brow",
+      price: 60,
+      includes: [
+        "Tint for brow",
+      ],
+    },
+    centurionroof: {
+      name: "Centurion Tint - Roof window",
+      price: 79,
+      includes: [
+        "Tint for roof window",
+      ],
+    },
+    ceramiccenturionsides: {
+      name: "Ceramic Centurion Tint - Sides each window",
+      price: 89,
+      includes: [
+        "Ceramic tint for sides each window",
+      ],
+    },
+    ceramiccenturionrear: {
+      name: "Ceramic Centurion Tint - Rear windshield",
+      price: 119,
+      includes: [
+        "Ceramic tint for rear windshield",
+      ],
+    },
+    ceramiccenturionfront: {
+      name: "Ceramic Centurion Tint - Front windshield",
+      price: 200,
+      includes: [
+        "Ceramic tint for front windshield",
+      ],
+    },
+    ceramiccenturionbrow: {
+      name: "Ceramic Centurion Tint - Brow",
+      price: 79,
+      includes: [
+        "Ceramic tint for brow",
+      ],
+    },
+    ceramiccenturionroof: {
+      name: "Ceramic Centurion Tint - Roof",
+      price: 99,
+      includes: [
+        "Ceramic tint for roof",
       ],
     },
   },
   ceramiccoating: {
-    basic: {
-      name: "Basic Ceramic Coating",
-      price: 200,
+    oneYear: {
+      name: "Ceramic Coating (1 Year)",
+      price: 379,
       includes: [
         "Hand wash & clay bar",
         "Apply 1 layer ceramic coating",
         "Protection for 1 year",
       ],
     },
-    advanced: {
-      name: "Advanced Ceramic Coating",
-      price: 350,
+    fiveYear: {
+      name: "Ceramic Coating (5 Years)",
+      price: 579,
       includes: [
         "Hand wash & clay bar",
         "Apply 2 layers ceramic coating",
-        "Protection for 3 years",
+        "Enhanced gloss & hydrophobic protection",
+        "Protection for 5 years",
+      ],
+    },
+    tenYear: {
+      name: "Ceramic Coating (10 Years)",
+      price: 779,
+      includes: [
+        "Hand wash & clay bar",
+        "Apply 3 layers ceramic coating",
+        "Maximum gloss & durability",
+        "Protection for 10 years",
       ],
     },
   },
 };
-
-
 
 // ---------------- Vehicle Types ----------------
 export const vehicleTypes = [
@@ -476,7 +534,6 @@ export const timeSlots = [
   "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM",
   "04:00 PM", "05:00 PM",
 ];
-
 
 // ---------------- City-State Map ----------------
 export const cityStateMap: Record<string, string> = {
@@ -520,7 +577,6 @@ export const cityStateMap: Record<string, string> = {
   "Winchester": "Virginia",
 };
 
-
 // ---------------- Service Types ----------------
 export const serviceTypes = [
   {
@@ -548,8 +604,6 @@ export const serviceTypes = [
     ],
   },
 ];
-
-
 
 // ---------------- Price Calculation ----------------
 export const calculateTotalPrice = (formData: any) => {
@@ -608,7 +662,6 @@ export const calculateTotalPrice = (formData: any) => {
 
   return total;
 };
-
 
 // ---------------- Single Package Price ----------------
 export const calculatePrice = (

@@ -6,6 +6,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { service, additionalServices, calculatePrice } from "@/utils/services";
 
+// Helper function to format package names
+const formatPackageName = (name: string): string => {
+  return name
+    .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
+    .replace(/-/g, ' ') // Replace hyphens with spaces
+    .replace(/\b\w/g, l => l.toUpperCase()); // Capitalize first letter of each word
+};
+
 
 
 interface OrderSummaryProps {
@@ -23,6 +31,17 @@ const OrderSummaryAccordion: FC<OrderSummaryProps> = ({
 }) => {
   const [open, setOpen] = useState(true);
   const toggleOpen = () => setOpen(!open);
+
+  // Determine if there are any selected services or add-ons to show the summary
+  const hasSelectedServices =
+    (formData.packageType && formData.vehicleType) ||
+    (formData.extraService && formData.extraService.length > 0) ||
+    (formData.additionalServices && formData.additionalServices.length > 0);
+
+  if (!hasSelectedServices) {
+    // Hide order summary if no services selected
+    return null;
+  }
 
   return (
     <Card className="mt-6 border-0 shadow-lg bg-gray-50">
@@ -48,13 +67,15 @@ const OrderSummaryAccordion: FC<OrderSummaryProps> = ({
               <div>
                 <h3 className="font-medium mb-2">Selected Services</h3>
                 <div className="space-y-2">
-                  {/* Main package */}
+                  {/* Main package or Detailing */}
                   {formData.packageType && (
                     <div className="flex justify-between p-2 border rounded">
                       <span>
-                        {formData.serviceCategory
-                          ? service[formData.vehicleType][formData.serviceCategory]?.name || formData.packageType
-                          : formData.packageType}
+                        {formData.extraService?.includes("detailing")
+                          ? `Detailing (${formatPackageName(formData.packageType)})`
+                          : formData.serviceCategory
+                          ? service[formData.vehicleType][formData.serviceCategory]?.name || formatPackageName(formData.packageType)
+                          : formatPackageName(formData.packageType)}
                       </span>
                       <span>
                         $
@@ -68,28 +89,67 @@ const OrderSummaryAccordion: FC<OrderSummaryProps> = ({
                     </div>
                   )}
 
-                  {/* Extra services */}
-                  {formData.extraService?.map((extraService: string) => {
-                    const pkgType =
-                      extraService === "windowtinting"
-                        ? formData.windowtintingPackageType || "standard"
-                        : formData.ceramiccoatingPackageType || "basic";
+                  {/* Extra services (excluding detailing) */}
+                  {formData.extraService?.filter((extraService: string) => extraService !== "detailing").map((extraService: string) => {
+                    // Handle window tinting packages (multiple selection)
+                    if (extraService === "windowtinting") {
+                      return formData.windowtintingPackages?.map((pkgKey: string) => {
+                        const price = calculatePrice(
+                          formData.vehicleType,
+                          pkgKey,
+                          extraService,
+                          Number(formData.vehicleSize),
+                          extraService
+                        );
+
+                        // Only show if price > 0
+                        if (price <= 0) return null;
+
+                        return (
+                          <div key={pkgKey} className="flex justify-between p-2 border rounded">
+                            <span>
+                              Window Tinting ({formatPackageName(pkgKey)})
+                            </span>
+                            <span>${price}</span>
+                          </div>
+                        );
+                      });
+                    }
+
+                    // Determine package type for other extra services
+                    let pkgType = "";
+                    if (extraService === "ceramiccoating") {
+                      pkgType = formData.ceramiccoatingPackageType;
+                    }
+
+                    // If package type is not set, skip rendering this extra service
+                    if (!pkgType) return null;
+
+                    // Determine display name for extra service
+                    let displayName = "";
+                    if (extraService === "ceramiccoating") {
+                      displayName = "Ceramic Coating";
+                    } else {
+                      displayName = extraService.charAt(0).toUpperCase() + extraService.slice(1);
+                    }
+
+                    const price = calculatePrice(
+                      formData.vehicleType,
+                      pkgType,
+                      extraService,
+                      Number(formData.vehicleSize),
+                      extraService
+                    );
+
+                    // Only show if price > 0
+                    if (price <= 0) return null;
+
                     return (
                       <div key={extraService} className="flex justify-between p-2 border rounded">
                         <span>
-                          {extraService === "windowtinting" ? "Window Tinting" : "Ceramic Coating"} (
-                          {pkgType.charAt(0).toUpperCase() + pkgType.slice(1)})
+                          {displayName} ({formatPackageName(pkgType)})
                         </span>
-                        <span>
-                          $
-                          {calculatePrice(
-                            formData.vehicleType,
-                            pkgType,
-                            extraService,
-                            Number(formData.vehicleSize),
-                            extraService
-                          )}
-                        </span>
+                        <span>${price}</span>
                       </div>
                     );
                   })}

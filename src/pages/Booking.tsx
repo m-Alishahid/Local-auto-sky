@@ -99,7 +99,7 @@ const ConfirmationModal = ({ open, onClose, formData, total }: any) => {
         </div>
 
         <div className="mt-6">
-          <Button onClick={onClose} className="w-full bg-black text-white">Close</Button>
+          <Button onClick={onClose} className="w-full bg-black text-white hover:bg-gray-700">Close</Button>
         </div>
       </DialogContent>
     </Dialog>
@@ -145,7 +145,7 @@ const Booking = () => {
     serviceCategory: string;
     vehicleSize: string;
     extraService: string[];
-    windowtintingPackageType: string;
+    windowtintingPackages: string[];
     ceramiccoatingPackageType: string;
   }>({
     selectedServices: [],
@@ -172,9 +172,17 @@ const Booking = () => {
     serviceCategory: "",
     vehicleSize: "",
     extraService: [],
-    windowtintingPackageType: "standard",
-    ceramiccoatingPackageType: "basic",
+    windowtintingPackages: [],
+    ceramiccoatingPackageType: "",
   });
+
+  // Format phone number to Virginia state format with +1 prefix
+  const formatPhoneNumber = (value: string) => {
+    const cleaned = value.replace(/\D/g, '').slice(0, 10); // Remove non-digits and limit to 10
+    if (cleaned.length <= 3) return `+1 ${cleaned}`;
+    if (cleaned.length <= 6) return `+1 ${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+    return `+1 ${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+  };
 
   const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const city = e.target.value;
@@ -208,52 +216,73 @@ const Booking = () => {
     updateForm({ date: date ? date.toISOString() : "" });
   };
 
-  // Pricing
-  const parsePrice = (price: string | number, length?: number) => {
-    if (typeof price === "number") return price;
-    if (price.includes("/ft") && length) {
-      const match = price.match(/\d+/);
-      return match ? Number(match[0]) * length : 0;
-    }
-    const match = price.match(/\d+/);
-    return match ? Number(match[0]) : 0;
-  };
-
-  // Calculate total price
+  // ✅ COMPLETELY FIXED: Calculate total price - Only include selected services
   const calculateTotalPrice = () => {
     let total = 0;
 
-    // Main package
+    console.log("Calculating price for:", {
+      packageType: formData.packageType,
+      extraService: formData.extraService,
+      vehicleType: formData.vehicleType,
+      serviceCategory: formData.serviceCategory
+    });
+
+    // Main package (always include if selected)
     if (formData.packageType) {
-      total += calculatePrice(
+      const price = calculatePrice(
         formData.vehicleType,
         formData.packageType,
         formData.serviceCategory,
         Number(formData.vehicleSize)
       );
+      console.log("Main package price:", price);
+      total += price;
     }
 
-    // Extra services
+    // ✅ FIXED: Only include extra services that are actually selected and NOT detailing
     formData.extraService.forEach((extraService) => {
-      const pkgType =
-        extraService === "windowtinting"
-          ? formData.windowtintingPackageType || "standard"
-          : formData.ceramiccoatingPackageType || "basic";
-      total += calculatePrice(
-        formData.vehicleType,
-        pkgType,
-        extraService,
-        Number(formData.vehicleSize),
-        extraService
-      );
+      if (extraService === "detailing") return; // Skip detailing as it's handled above
+
+      if (extraService === "windowtinting") {
+        // Sum up all selected window tinting packages
+        formData.windowtintingPackages.forEach((pkgKey) => {
+          const price = calculatePrice(
+            formData.vehicleType,
+            pkgKey,
+            extraService,
+            Number(formData.vehicleSize),
+            extraService
+          );
+          console.log(`Window tinting ${pkgKey} price:`, price);
+          total += price;
+        });
+      } else if (extraService === "ceramiccoating") {
+        const pkgType = formData.ceramiccoatingPackageType;
+        if (!pkgType) return;
+
+        const price = calculatePrice(
+          formData.vehicleType,
+          pkgType,
+          extraService,
+          Number(formData.vehicleSize),
+          extraService
+        );
+
+        console.log(`${extraService} price:`, price);
+        total += price;
+      }
     });
 
     // Add-ons
     formData.additionalServices.forEach((id: string) => {
       const add = additionalServices.find((a) => a.id === id);
-      if (add) total += add.price;
+      if (add) {
+        console.log(`Add-on ${id} price:`, add.price);
+        total += add.price;
+      }
     });
 
+    console.log("Final total:", total);
     return total;
   };
 
@@ -287,6 +316,12 @@ const Booking = () => {
 
     if (!formData.email) {
       toast({ title: "Email Missing ❌", description: "Please provide a valid email." });
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (formData.zip.length !== 5) {
+      toast({ title: "Invalid Zip Code ❌", description: "Zip code must be exactly 5 digits." });
       setIsSubmitting(false);
       return;
     }
@@ -384,6 +419,22 @@ const Booking = () => {
                       </div>
                     )}
 
+                    {/* Boat/RV size input */}
+                    {(formData.vehicleType === "boat" || formData.vehicleType === "rv") && (
+                      <Input
+                        type="number"
+                        placeholder="Enter size in feet *"
+                        value={formData.vehicleSize || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            vehicleSize: e.target.value,
+                          }))
+                        }
+                        className="bg-white text-black"
+                      />
+                    )}
+
                     <div className="flex justify-end">
                       <Button onClick={nextStep} className="bg-black text-white hover:bg-gray-600">
                         Next
@@ -409,22 +460,6 @@ const Booking = () => {
                         {vehicleTypes.find((v) => v.id === formData.vehicleType)?.name}
                       </span>
                     </p>
-
-                    {/* Boat/RV size input */}
-                    {(formData.vehicleType === "boat" || formData.vehicleType === "rv") && (
-                      <Input
-                        type="number"
-                        placeholder="Enter size in feet"
-                        value={formData.vehicleSize || ""}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            vehicleSize: e.target.value,
-                          }))
-                        }
-                        className="bg-white text-black"
-                      />
-                    )}
 
                     {/* Extra Services Checkboxes */}
                     <div>
@@ -458,13 +493,27 @@ const Booking = () => {
                           />
                           Ceramic Coating
                         </label>
+                        <label className="flex items-center gap-2">
+                          <Checkbox
+                            checked={formData.extraService.includes("detailing")}
+                            onCheckedChange={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                extraService: prev.extraService.includes("detailing")
+                                  ? prev.extraService.filter((s) => s !== "detailing")
+                                  : [...prev.extraService, "detailing"],
+                              }));
+                            }}
+                          />
+                          Detailing
+                        </label>
                       </div>
                     </div>
 
                     {/* Window Tinting Package Select */}
                     {formData.extraService.includes("windowtinting") && (
                       <div className="mt-2">
-                        <Label>Window Tinting Package</Label>
+                        <Label>Window Tinting Packages (Select Multiple)</Label>
                         <div className="grid md:grid-cols-2 gap-4 mt-2">
                           {Object.entries(extraServices.windowtinting || {}).map(([packageKey, pkg]) => {
                             const packageData = pkg as { name: string; price: string | number; includes?: string[] };
@@ -475,19 +524,28 @@ const Booking = () => {
                               Number(formData.vehicleSize),
                               "windowtinting"
                             );
-                            const isSelected = formData.windowtintingPackageType === packageKey;
+                            const isSelected = formData.windowtintingPackages.includes(packageKey);
 
                             return (
                               <div
                                 key={packageKey}
                                 className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""
                                   }`}
-                                onClick={() =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    windowtintingPackageType: packageKey
-                                  }))
-                                }
+                                onClick={() => {
+                                  setFormData((prev) => {
+                                    const alreadySelected = prev.windowtintingPackages.includes(packageKey);
+                                    let newPackages;
+                                    if (alreadySelected) {
+                                      newPackages = prev.windowtintingPackages.filter((p) => p !== packageKey);
+                                    } else {
+                                      newPackages = [...prev.windowtintingPackages, packageKey];
+                                    }
+                                    return {
+                                      ...prev,
+                                      windowtintingPackages: newPackages,
+                                    };
+                                  });
+                                }}
                               >
                                 <div className="flex justify-between items-center font-medium">
                                   <span>{packageData.name}</span>
@@ -568,61 +626,92 @@ const Booking = () => {
                     )}
 
                     {/* Service Packages (Normal Detailing) */}
-                    {/* Service Packages (Normal Detailing) */}
-                    {formData.vehicleType && (
+                    {(formData.extraService.includes("detailing") || formData.extraService.length === 0) && formData.vehicleType && (
                       <div className="grid md:grid-cols-2 gap-4">
                         {Object.entries(service[formData.vehicleType] || {}).map(([serviceCategory, packagesOrService]) => {
-                          return Object.entries(packagesOrService as any).map(
-                            ([packageKey, pkg]) => {
-                              const packageId = `${serviceCategory}-${packageKey}`;
-                              const isSelected = formData.packageType === packageId;
-                              const price = calculatePrice(
-                                formData.vehicleType,
-                                packageId,
-                                serviceCategory,
-                                Number(formData.vehicleSize)
-                              );
+                          if ((packagesOrService as any).name) {
+                            // Single package (e.g., RV, boat, jetski)
+                            const pkg = packagesOrService as { name: string; price?: number; pricePerFt?: number; includes: string[] };
+                            const packageId = serviceCategory;
+                            const isSelected = formData.packageType === packageId;
+                            const price = calculatePrice(
+                              formData.vehicleType,
+                              packageId,
+                              serviceCategory,
+                              Number(formData.vehicleSize)
+                            );
 
-                              return (
-                                <div
-                                  key={packageId}
-                                  className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""}`}
-                                  onClick={() =>
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      serviceCategory,
-                                      packageType: packageId,
-                                    }))
-                                  }
-                                >
-                                  <div className="flex justify-between font-medium">
-                                    <span>{(pkg as { name: string }).name}</span>
-                                    <span>${price}</span>
-                                  </div>
-                                  <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
-                                    {Array.isArray((pkg as { includes?: string[] | string }).includes)
-                                      ? (pkg as { includes?: string[] }).includes?.map(
-                                        (i: string, idx: number) => <li key={idx}>{i}</li>
-                                      )
-                                      : typeof (pkg as { includes?: string }).includes === "string"
-                                        ? (pkg as { includes?: string })
-                                          .includes?.split(",")
-                                          .map((i: string, idx: number) => <li key={idx}>{i.trim()}</li>)
-                                        : null}
-                                  </ul>
-                                  {isSelected && (
-                                    <p className="text-sm text-green-600 flex items-center mt-2">
-                                      <Check size={14} className="mr-1" /> Selected
-                                    </p>
-                                  )}
+                            return (
+                              <div
+                                key={packageId}
+                                className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""}`}
+                                onClick={() =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    serviceCategory,
+                                    packageType: packageId,
+                                  }))
+                                }
+                              >
+                                <div className="flex justify-between font-medium">
+                                  <span>{pkg.name}</span>
+                                  <span>${price}</span>
                                 </div>
-                              );
-                            }
-                          );
+                                <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
+                                  {pkg.includes.map((i: string, idx: number) => <li key={idx}>{i}</li>)}
+                                </ul>
+                                {isSelected && (
+                                  <p className="text-sm text-green-600 flex items-center mt-2">
+                                    <Check size={14} className="mr-1" /> Selected
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          } else {
+                            // Multiple packages (e.g., cars)
+                            return Object.entries(packagesOrService as Record<string, { name: string; price?: number; includes: string[] }>).map(
+                              ([packageKey, pkg]) => {
+                                const packageId = `${serviceCategory}-${packageKey}`;
+                                const isSelected = formData.packageType === packageId;
+                                const price = calculatePrice(
+                                  formData.vehicleType,
+                                  packageId,
+                                  serviceCategory,
+                                  Number(formData.vehicleSize)
+                                );
+
+                                return (
+                                  <div
+                                    key={packageId}
+                                    className={`p-4 border rounded-lg cursor-pointer hover:shadow-lg transition ${isSelected ? "bg-gray-100 border-black" : ""}`}
+                                    onClick={() =>
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        serviceCategory,
+                                        packageType: packageId,
+                                      }))
+                                    }
+                                  >
+                                    <div className="flex justify-between font-medium">
+                                      <span>{pkg.name}</span>
+                                      <span>${price}</span>
+                                    </div>
+                                    <ul className="text-sm mt-2 list-disc pl-4 space-y-1">
+                                      {pkg.includes.map((i: string, idx: number) => <li key={idx}>{i}</li>)}
+                                    </ul>
+                                    {isSelected && (
+                                      <p className="text-sm text-green-600 flex items-center mt-2">
+                                        <Check size={14} className="mr-1" /> Selected
+                                      </p>
+                                    )}
+                                  </div>
+                                );
+                              }
+                            );
+                          }
                         })}
                       </div>
                     )}
-
 
                     {/* Add-ons */}
                     {formData.packageType && (
@@ -678,7 +767,10 @@ const Booking = () => {
                     {/* Email + Phone */}
                     <div className="grid md:grid-cols-2 gap-4">
                       <Input name="email" type="email" placeholder="Email *" value={formData.email} onChange={handleInputChange} required />
-                      <Input name="phone" placeholder="Phone *" value={formData.phone} onChange={handleInputChange} required />
+                      <Input name="phone" placeholder="Phone *" value={formData.phone} onChange={(e) => {
+                        const formatted = formatPhoneNumber(e.target.value);
+                        updateForm({ phone: formatted });
+                      }} required />
                     </div>
 
                     {/* Address */}
@@ -721,9 +813,10 @@ const Booking = () => {
                         required
                         name="zip"
                         value={formData.zip}
-                        onChange={(e) =>
-                          setFormData((prev) => ({ ...prev, zip: e.target.value }))
-                        }
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 5);
+                          setFormData((prev) => ({ ...prev, zip: value }));
+                        }}
                         placeholder="Zip *"
                         className="bg-white text-black"
                       />

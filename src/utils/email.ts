@@ -9,7 +9,7 @@ export const getVehicleTypeName = (vehicleTypeId: string) => {
 
 const site = process.env.NEXT_PUBLIC_SITE_URL || ""; // e.g. https://yourdomain.com
 
-// ✅ Base template wrapper
+// ✅ Base template wrapper (Black/White/Gray theme)
 const baseTemplate = (title: string, content: string) => `
 <!DOCTYPE html>
 <html lang="en">
@@ -18,27 +18,30 @@ const baseTemplate = (title: string, content: string) => `
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${title}</title>
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f7fa; margin:0; padding:0; color:#333; }
-    .container { max-width:650px; margin:30px auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,0.1); }
-    .header { background: linear-gradient(135deg, #c1ccd1, #349ccc); text-align:center; padding:50px 20px; color:#fff; position:relative; }
-    .logo { width:110px; height:55px; object-fit:cover; border-radius:12px; position:absolute; left:20px; top:50%; transform:translateY(-50%); }
-    .heading { color:black; font-size:26px; font-weight:800; margin:0; text-transform:uppercase; letter-spacing:1px; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f3f3f3; margin:0; padding:0; color:#111; }
+    .container { max-width:650px; margin:30px auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,0.08); }
+    
+    .header { background: linear-gradient(135deg, #000000, #333333); text-align:center; padding:50px 20px; color:#fff; position:relative; }
+    .heading { color:#fff; font-size:26px; font-weight:800; margin:0; text-transform:uppercase; letter-spacing:1px; }
+    
     .content { padding:35px; line-height:1.6; }
-    .content h2 { color:#0ea5e9; font-size:22px; margin-bottom:10px; }
+    .content h2 { color:#111; font-size:22px; margin-bottom:10px; }
     .content p { font-size:15px; margin-bottom:15px; }
-    .card { background:#fafafa; border:1px solid #eee; border-radius:8px; padding:18px; margin-bottom:20px; }
-    .card h3 { color:#000; margin-bottom:12px; font-size:16px; border-bottom:2px solid #0ea5e9; display:inline-block; padding-bottom:4px; }
+    
+    .card { background:#fafafa; border:1px solid #e5e5e5; border-radius:8px; padding:18px; margin-bottom:20px; }
+    .card h3 { color:#000; margin-bottom:12px; font-size:16px; border-bottom:2px solid #333; display:inline-block; padding-bottom:4px; }
     .card p { margin:8px 0; font-size:14px; }
-    .footer { background: linear-gradient(135deg, #3baee4, #000000); text-align:center; padding:22px; color:#fff; font-size:13px; }
-    .footer a { color:#0ea5e9; text-decoration:none; }
+    
+    .footer { background: linear-gradient(135deg, #111111, #333333); text-align:center; padding:22px; color:#f5f5f5; font-size:13px; }
+    .footer a { color:#ddd; text-decoration:none; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-<img src="https://localautospa.com/logo.png" 
-     alt="Local Auto Spa Logo" 
-     style="width: 150px; height: auto;" />
+      <img src="https://localautospa.com/logo.png" 
+           alt="Local Auto Spa Logo" 
+           style="width: 150px; height: auto; margin-bottom:12px;" />
       <h1 class="heading">${title}</h1>
     </div>
     <div class="content">${content}</div>
@@ -131,7 +134,7 @@ export const getUserEmailTemplate = (formData: any) => {
   const content = `
     <h2>Thank you for your booking!</h2>
     <p>Hi <strong>${formData.firstName}</strong>,</p>
-    <p>We’ve <span style="color:#0ea5e9; font-weight:bold;">successfully received</span> your booking. Here are your details:</p>
+    <p>We’ve <span style="color:#000; font-weight:bold;">successfully received</span> your booking. Here are your details:</p>
 
     <div class="card">
       <h3>🛠 Service Details</h3>
@@ -153,7 +156,7 @@ export const getUserEmailTemplate = (formData: any) => {
 
     ${formData.notes ? `<div class="card"><h3>📝 Notes</h3><p>${formData.notes}</p></div>` : ""}
 
-    <p>We look forward to serving you! If you need changes, contact us at <b style="color:#0ea5e9;">localautospa@gmail.com</b>.</p>
+    <p>We look forward to serving you! If you need changes, contact us at <b style="color:#000;">localautospa@gmail.com</b>.</p>
   `;
 
   return baseTemplate("Booking Confirmation", content);
