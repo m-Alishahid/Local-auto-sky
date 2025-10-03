@@ -27,6 +27,11 @@ interface BookingBody {
   notes?: string;
   totalPrice?: number;
   promoCode?: string;
+  packageType?: string;
+  serviceCategory?: string;
+  extraService?: string[];
+  windowtintingPackages?: string[];
+  ceramiccoatingPackageType?: string;
 }
 
 export async function POST(req: Request) {
@@ -50,6 +55,30 @@ export async function POST(req: Request) {
       );
     }
     body.date = bookingDate.toISOString();
+
+    // ✅ Construct selectedServices array from form data
+    const selectedServices: {serviceType: string, package: string}[] = [];
+    if (body.packageType) {
+      selectedServices.push({
+        serviceType: body.serviceCategory || "detailing",
+        package: body.packageType
+      });
+    }
+    if (body.extraService?.includes("windowtinting") && body.windowtintingPackages) {
+      body.windowtintingPackages.forEach((pkg: string) => {
+        selectedServices.push({
+          serviceType: "windowtinting",
+          package: pkg
+        });
+      });
+    }
+    if (body.extraService?.includes("ceramiccoating") && body.ceramiccoatingPackageType) {
+      selectedServices.push({
+        serviceType: "ceramiccoating",
+        package: body.ceramiccoatingPackageType
+      });
+    }
+    body.selectedServices = selectedServices;
 
     // ✅ Load env vars safely
     const from = (process.env.FROM_EMAIL ?? "onboarding@resend.dev").trim();

@@ -1,6 +1,6 @@
 // utils/email.ts
 import { format } from "date-fns";
-import { serviceTypes, additionalServices, vehicleTypes } from "@/utils/services";
+import { serviceTypes, additionalServices, vehicleTypes, extraServices } from "@/utils/services";
 
 export const getVehicleTypeName = (vehicleTypeId: string) => {
   const vehicleType = vehicleTypes.find((v) => v.id === vehicleTypeId);
@@ -59,9 +59,20 @@ const baseTemplate = (title: string, content: string) => `
 const formatSelectedPackages = (selectedServices: any[]) =>
   (selectedServices || [])
     .map((service) => {
-      const serviceInfo = serviceTypes.find((s) => s.id === service.serviceType);
-      const packageInfo = serviceInfo?.packages.find((p: any) => p.id === service.package);
-      return packageInfo ? `${serviceInfo?.name} - ${packageInfo.name} ($${packageInfo.price})` : "";
+      if (service.serviceType === "windowtinting" || service.serviceType === "ceramiccoating") {
+        const pkg = extraServices[service.serviceType]?.[service.package];
+        if (pkg) {
+          const serviceName = service.serviceType === "windowtinting" ? "Window Tinting" : "Ceramic Coating";
+          return `${serviceName} - ${pkg.name} ($${pkg.price})`;
+        }
+      } else {
+        const serviceInfo = serviceTypes.find((s) => s.id === service.serviceType);
+        const packageInfo = serviceInfo?.packages.find((p: any) => p.id === service.package);
+        if (packageInfo) {
+          return `${serviceInfo?.name} - ${packageInfo.name} ($${packageInfo.price})`;
+        }
+      }
+      return "";
     })
     .filter(Boolean)
     .join("<br>");
